@@ -12,6 +12,7 @@ import math
 # import survivorSelection
 
 cities = {}
+distances = {}
 
 
 def readFile(filename):
@@ -22,19 +23,19 @@ def readFile(filename):
             cities[parts[0]] = [parts[1], parts[2]]
 
 
-def calculate_distances(filename, dict):
-    distances = {}
-    for origin in dict.keys():
+def calculate_distances():
+    for origin in sorted(cities.keys()):
         distances[origin] = {}
-        for dest in sorted(dict.keys()):
-            dx = float(dict[origin][0]) - float(dict[dest][0])
-            dy = float(dict[origin][1]) - float(dict[dest][1])
+        for dest in sorted(cities.keys()):
+            dx = float(cities[origin][0]) - float(cities[dest][0])
+            dy = float(cities[origin][1]) - float(cities[dest][1])
             distances[origin][dest] = math.sqrt(dx**2 + dy**2)
 
 
 def main():
     filename = "../TSP_WesternSahara_29.txt"
     readFile(filename)
+    calculate_distances()
     string_length = len(cities)
     popsize = 100
     mating_pool_size = int(popsize * 0.5)  # has to be even
@@ -44,10 +45,8 @@ def main():
     gen_limit = 50
     fitnessThreshold = 20
 
-    calculate_distances(filename, cities)
-
-
-
     # population  = initialization.permutation(popsize)
+
+
 if __name__ == '__main__':
     main()
