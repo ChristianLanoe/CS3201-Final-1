@@ -23,7 +23,7 @@ def readFile(filename):
             cities[parts[0]] = [parts[1], parts[2]]
 
 
-def calculate_distances(filename):
+def calculate_distances():
     for origin in sorted(cities.keys()):
         distances[origin] = {}
         for dest in sorted(cities.keys()):
@@ -35,7 +35,7 @@ def calculate_distances(filename):
 def main():
     filename = "../TSP_WesternSahara_29.txt"
     readFile(filename)
-    calculate_distances(filename)
+    calculate_distances()
     string_length = len(cities)
     popsize = 100
     mating_pool_size = int(popsize * 0.5)  # has to be even
