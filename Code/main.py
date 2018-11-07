@@ -2,6 +2,7 @@ import numpy as np
 import random
 import os
 import pprint as pp
+import math
 
 # import initialization
 # import evaluation
@@ -21,6 +22,16 @@ def readFile(filename):
             cities[parts[0]] = [parts[1], parts[2]]
 
 
+def calculate_distances(filename, dict):
+    distances = {}
+    for origin in dict.keys():
+        distances[origin] = {}
+        for dest in sorted(dict.keys()):
+            dx = float(dict[origin][0]) - float(dict[dest][0])
+            dy = float(dict[origin][1]) - float(dict[dest][1])
+            distances[origin][dest] = math.sqrt(dx**2 + dy**2)
+
+
 def main():
     filename = "../TSP_WesternSahara_29.txt"
     readFile(filename)
@@ -32,6 +43,8 @@ def main():
     xover_rate = 0.9
     gen_limit = 50
     fitnessThreshold = 20
+
+    calculate_distances(filename, cities)
 
 
 
