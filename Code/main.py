@@ -11,7 +11,7 @@ import math
 # import parentSelection
 # import survivorSelection
 
-cities = {}
+cities = []
 distances = {}
 
 
@@ -20,7 +20,7 @@ def readFile(filename):
         lines = f.read().splitlines()
         for line in lines:
             parts = line.split()
-            cities[parts[0]] = [parts[1], parts[2]]
+            cities.append([parts[1], parts[2]])
 
 
 def calculate_distances():
