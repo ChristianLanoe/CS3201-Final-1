@@ -16,13 +16,38 @@ import math
 cities = []
 distances = {}
 
+
+"""
+This function checks if the user has supplied the correct number of command
+line arguments
+
+Args:
+    None
+
+Returns:
+    None
+"""
 def checkSysArgs():
     if(len(sys.argv) != 2):
         print("usage: python {} Country_Name")
 
 
-def load_file(country_Name):
-    filename = country_Name+".pickle"
+"""
+This function loads the serialzed distance list of the specified country
+
+The only countries that are currently accepted are:
+    Canada
+    Uruguay
+    WesternSahara
+
+Args:
+    countryName - The name of the country to load
+
+Returns:
+    The unserialzed list
+"""
+def load_file(countryName):
+    filename = countryName+".pickle"
     with open(filename, "rb") as f:
         return pickle.load(f)
 
