@@ -1,3 +1,5 @@
+import sys
+import pickle
 import numpy as np
 import random
 import os
@@ -11,32 +13,49 @@ import math
 # import parentSelection
 # import survivorSelection
 
-cities = {}
+cities = []
 distances = {}
 
 
-def readFile(filename):
-    with open(filename) as f:
-        lines = f.read().splitlines()
-        for line in lines:
-            parts = line.split()
-            cities[parts[0]] = [parts[1], parts[2]]
+"""
+This function checks if the user has supplied the correct number of command
+line arguments
+
+Args:
+    None
+
+Returns:
+    None
+"""
+def checkSysArgs():
+    if(len(sys.argv) != 2):
+        print("usage: python {} Country_Name")
 
 
-def calculate_distances():
-    for origin in sorted(cities.keys()):
-        distances[origin] = {}
-        for dest in sorted(cities.keys()):
-            dx = float(cities[origin][0]) - float(cities[dest][0])
-            dy = float(cities[origin][1]) - float(cities[dest][1])
-            distances[origin][dest] = math.sqrt(dx**2 + dy**2)
+"""
+This function loads the serialzed distance list of the specified country
+
+The only countries that are currently accepted are:
+    Canada
+    Uruguay
+    WesternSahara
+
+Args:
+    countryName - The name of the country to load
+
+Returns:
+    The unserialzed list
+"""
+def load_file(countryName):
+    filename = countryName+".pickle"
+    with open(filename, "rb") as f:
+        return pickle.load(f)
 
 
 def main():
-    filename = "../TSP_WesternSahara_29.txt"
-    readFile(filename)
-    calculate_distances()
-    string_length = len(cities)
+    checkSysArgs()
+    distances = load_file(sys.argv[1])
+    string_length = len(distances)
     popsize = 100
     mating_pool_size = int(popsize * 0.5)  # has to be even
     tournament_size = 3
