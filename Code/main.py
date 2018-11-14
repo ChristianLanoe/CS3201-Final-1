@@ -1,3 +1,5 @@
+import sys
+import pickle
 import numpy as np
 import random
 import os
@@ -14,29 +16,21 @@ import math
 cities = []
 distances = {}
 
-
-def readFile(filename):
-    with open(filename) as f:
-        lines = f.read().splitlines()
-        for line in lines:
-            parts = line.split()
-            cities.append([parts[1], parts[2]])
+def checkSysArgs():
+    if(len(sys.argv) != 2):
+        print("usage: python {} Country_Name")
 
 
-def calculate_distances():
-    for origin in sorted(cities.keys()):
-        distances[origin] = {}
-        for dest in sorted(cities.keys()):
-            dx = float(cities[origin][0]) - float(cities[dest][0])
-            dy = float(cities[origin][1]) - float(cities[dest][1])
-            distances[origin][dest] = math.sqrt(dx**2 + dy**2)
+def load_file(country_Name):
+    filename = country_Name+".pickle"
+    with open(filename, "rb") as f:
+        return pickle.load(f)
 
 
 def main():
-    filename = "../TSP_WesternSahara_29.txt"
-    readFile(filename)
-    calculate_distances()
-    string_length = len(cities)
+    checkSysArgs()
+    distances = load_file(sys.argv[1])
+    string_length = len(distances)
     popsize = 100
     mating_pool_size = int(popsize * 0.5)  # has to be even
     tournament_size = 3
