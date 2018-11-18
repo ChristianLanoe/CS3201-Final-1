@@ -13,12 +13,12 @@ def fitness(individual, distances):
     distance = 0
 
     # Calculating the distance from the first city in the path to the last
-    for i in range(0,len(individual.individual)-1):
-        origin = individual.individual[i]
-        destination = individual.individual[i+1]
+    for i in range(0,len(individual.path)-1):
+        origin = individual.path[i]
+        destination = individual.path[i+1]
         distance += distances[origin][destination]
 
     # Adding the distance from the last city back to the start
-    distance += distances[len(individual.individual)-1][0]
+    distance += distances[len(individual.path)-1][0]
 
     return 1/distance
