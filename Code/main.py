@@ -10,7 +10,7 @@ import individual
 import initialization
 # import evaluation
 # import recombination
-# import mutation
+import mutation
 # import parentSelection
 # import survivorSelection
 
