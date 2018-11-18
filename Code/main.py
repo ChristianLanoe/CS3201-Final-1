@@ -8,14 +8,14 @@ import math
 
 import individual
 import initialization
-# import evaluation
+import evaluation
 # import recombination
 # import mutation
 # import parentSelection
 # import survivorSelection
 
 cities = []
-distances = {}
+distances = []
 
 
 """
@@ -68,6 +68,14 @@ def main():
     
     gen = 0
     population  = initialization.permutation(popsize, string_length)
+    print("Initial Population \n ======================")
+    for i in range(len(population)):
+        print(str(population[i]))
+
+    for i in range(popsize):
+        population[i].fitness = evaluation.fitness(population[i], distances)
+
+    print("After Fitness Evaluation \n ======================")
     for i in range(len(population)):
         print(str(population[i]))
 
