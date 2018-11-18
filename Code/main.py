@@ -6,7 +6,8 @@ import os
 import pprint as pp
 import math
 
-# import initialization
+import individual
+import initialization
 # import evaluation
 # import recombination
 # import mutation
@@ -64,7 +65,11 @@ def main():
     gen_limit = 50
     fitnessThreshold = 20
 
-    # population  = initialization.permutation(popsize)
+    
+    gen = 0
+    population  = initialization.permutation(popsize, string_length)
+    for i in range(len(population)):
+        print(str(population[i]))
 
 
 if __name__ == '__main__':
