@@ -9,7 +9,7 @@ import math
 import individual
 import initialization
 import evaluation
-# import recombination
+import recombination
 import mutation
 # import parentSelection
 # import survivorSelection
@@ -78,6 +78,7 @@ def main():
     print("After Fitness Evaluation \n ======================")
     for i in range(len(population)):
         print(str(population[i]))
+
 
 
 if __name__ == '__main__':
