@@ -32,8 +32,7 @@ def PMX(parent1, parent2):
 
     path_length = len(parent1.path)
     seg_start = random.randint(0, path_length-1)
-    seg_end = random.randint(seg_start+1, path_length-1)
-
+    seg_end = random.randint(seg_start, path_length-1)
     for i in range(seg_start, seg_end+1):
         offspring1.path[i] = parent1.path[i]
         offspring2.path[i] = parent2.path[i]
@@ -42,7 +41,6 @@ def PMX(parent1, parent2):
     offspring2 = PMX_fill_offspring(offspring2, parent1, seg_start, seg_end)
 
     return offspring1, offspring2
-
 
 
 def PMX_fill_offspring(offspring, parent, seg_start, seg_end):
