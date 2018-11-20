@@ -6,5 +6,9 @@ class Individual:
         self.fitness = fitness
 
 
+    def __repr__(self):
+        return "Path: {} \nFitness: {}".format(self.path, self.fitness)
+
+
     def __str__(self):
-        return ("Path: {} \nFitness: {}".format(self.path, self.fitness))
+        return "Path: {} \nFitness: {}".format(self.path, self.fitness)

@@ -70,14 +70,14 @@ def main():
     population  = initialization.permutation(popsize, string_length)
     print("Initial Population \n ======================")
     for i in range(len(population)):
-        print(str(population[i]))
+        print(population[i])
 
     for i in range(popsize):
         population[i].fitness = evaluation.fitness(population[i], distances)
 
     print("After Fitness Evaluation \n ======================")
     for i in range(len(population)):
-        print(str(population[i]))
+        print(population[i])
 
 
 
