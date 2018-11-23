@@ -65,6 +65,69 @@ def PMX_fill_offspring(offspring, parent, seg_start, seg_end):
 
 
 """
+Alternating Edges Crossover start by adding the first 2 cities of a parent to the 
+offspring. It then adds the city that proceeds from the second parent then the 
+city that proceeds from the first parent and so on.
+
+If the next city is already in the offspring we add the first city in a
+randomized list of unvisited cities
+"""
+def Alternating_Edges(parent1, parent2):
+    offspringPath1 = []
+    offspringPath2 = []
+    path_length = len(parent1.path)
+    parents = [parent1.path, parent2.path]
+    
+    offspringPath1.append(parent1.path[0])
+    offspringPath1.append(parent1.path[1])
+
+    offspringPath2.append(parent2.path[0])
+    offspringPath2.append(parent2.path[1])
+
+    offspringPath1 = Alternating_Edges_fill_offspring(offspringPath1, parents, 1, path_length)
+    offspringPath2 = Alternating_Edges_fill_offspring(offspringPath2, parents, 0, path_length)
+
+    offspring1 = Individual(offspringPath1, 0)
+    offspring2 = Individual(offspringPath2, 0)
+
+    return offspring1, offspring2
+
+
+"""
+Helper Function to fill offspring from Alternating Edges Crossover
+
+Args:
+    path - the path of the offspring. Already contains the first 2 cities from 
+           one of the parents
+    parents - the array of parent paths
+    curParent - the index of the current currentParent
+    path_length
+
+Returns:
+    offspringPath - the path of the offspring
+"""
+def Alternating_Edges_fill_offspring(path, parents, curParent, path_length):
+    unvisited_cities = np.random.permutation(path_length).tolist()
+    for city in path:
+        unvisited_cities.remove(city)
+
+    while(len(path) < path_length):
+        city_idx = parents[curParent].index(path[len(path)-1])
+        if(city_idx == path_length-1):
+            city_idx = -1
+        next_idx = city_idx + 1
+
+        if(parents[curParent][next_idx] not in path):
+            path.append(parents[curParent][next_idx])
+        else:
+            path.append(unvisited_cities[0])
+        unvisited_cities.remove(path[len(path)-1])
+        curParent = (curParent + 1) % len(parents)
+
+    return path
+    
+
+"""
 This recombination operator randomly picks which parent to use as a starting point
 From there it picks the edge from the parents that has the shortest distance
 
