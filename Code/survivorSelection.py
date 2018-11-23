@@ -50,10 +50,11 @@ def round_robin_tournament(current_pop, offspring):
     while i < q:
         wins = 0
         individual = pop[i]
-        testPop = random.shuffle(pop)
+        testPop = pop.copy()
+        random.shuffle(testPop)
         competitors = testPop[:q]
         for k in range(0, q):
-            if (individual.fitness > competitors[k]):
+            if (individual.fitness > competitors[k].fitness):
                 wins += 1
         tuple = list(zip(pop, fitness))
         fitness.append(wins)
