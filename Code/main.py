@@ -60,29 +60,29 @@ def main():
     popsize = 100
     mating_pool_size = int(popsize * 0.5)  # has to be even
     tournament_size = 3
-    mut_rate = 0.2
+    mut_rate = 0.7
     xover_rate = 0.9
-    gen_limit = 50
+    gen_limit = 2000
     fitnessThreshold = 20
 
     
     gen = 0
     population  = initialization.permutation(popsize, string_length)
-    print("Initial Population \n ======================")
-    for i in range(len(population)):
-        print(population[i])
+    # print("Initial Population \n ======================")
+    # for i in range(len(population)):
+    #     print(population[i])
 
     for i in range(popsize):
         population[i].fitness = evaluation.fitness(population[i], distances)
 
-    print("After Fitness Evaluation \n ======================")
-    for i in range(len(population)):
-        print(population[i])
+    # print("After Fitness Evaluation \n ======================")
+    # for i in range(len(population)):
+    #     print(population[i])
 
     maxFitness = 0
     while gen < gen_limit:
         parents = parentSelection.tournament_sel(population, mating_pool_size, tournament_size)
-
+        # print(parents)
         random.shuffle(parents)
 
 
@@ -93,27 +93,28 @@ def main():
 
             # RECOMBINATION
             if random.random() < xover_rate:
-                off1, off2 = recombination.Alternating_Edges(parents[i], parents[i+1])
-                # off1, off2 = recombination.cut_and_crossfill(parents[i], parents[i+1])
-                # off1, off2 = recombination.OrderCrossover(parents[i], parents[i+1])
-                # off1, off2 = recombination.PMX(parents[i], parents[i+1])
-                # off1, off2 = recombination.sequential_constructive_crossover(parents[i], parents[i+1])
+                # off1, off2 = recombination.Alternating_Edges(population[parents[i]], population[parents[i+1]])
+                # off1, off2 = recombination.cut_and_crossfill(population[parents[i]], population[parents[i+1]])
+                # off1, off2 = recombination.OrderCrossover(population[parents[i]], population[parents[i+1]])
+                off1, off2 = recombination.PMX(population[parents[i]], population[parents[i+1]])
+                # off1 = recombination.sequential_constructive_crossover(population[parents[i]], population[parents[i+1]], distances)
+                # off2 = recombination.sequential_constructive_crossover(population[parents[i]], population[parents[i+1]], distances)
             else:
-                off1 = population[i].copy()
-                off2 = population[i + 1].copy()
+                off1 = population[parents[i]]
+                off2 = population[parents[i + 1]]
 
             # MUTATION
             if random.random() < mut_rate:
-                off1 = mutation.insert(off1)
+                # off1 = mutation.insert(off1)
                 # off1 = mutation.inversion(off1)
                 # off1 = mutation.random(off1)
-                # off1 = mutation.scramble(off1)
+                off1 = mutation.scramble(off1)
                 # off1 = mutation.swap(off1)
             if random.random() < mut_rate:
-                off2 = mutation.insert(off2)
+                # off2 = mutation.insert(off2)
                 # off2 = mutation.inversion(off2)
                 # off2 = mutation.random(off2)
-                # off2 = mutation.scramble(off2)
+                off2 = mutation.scramble(off2)
                 # off2 = mutation.swap(off2)
 
             # FITNESS EVALUATION
@@ -124,8 +125,8 @@ def main():
             offspring.append(off2)
 
         # SURVIVOR SELECTION
-        population = survivorSelection.mu_plus_lambda(population, offspring)
-        # population = survivorSelection.random_uniform(population, offspring)
+        # population = survivorSelection.mu_plus_lambda(population, offspring)
+        population = survivorSelection.random_uniform(population, offspring)
         # population = survivorSelection.simulated_annealing(population, offspring)
 
         gen += 1
@@ -133,11 +134,12 @@ def main():
         maxFitness = max(individual.fitness for individual in population)
         totalFitness = sum(individual.fitness for individual in population)
 
-        print("generation {}: best fitness {} average fitness {}".format(gen, maxFitness, totalfitness/len(population)))
+        print("generation {}: best fitness {} average fitness {}".format(gen, 1/maxFitness, totalFitness/len(population)))
     k = 0
     for i in range(0, popsize):
         if(population[i].fitness) == maxFitness:
-            print("best solution {} {} {}".format(k, population[i].path, population[i].fitness))
+            print("best solution {} {} {}".format(k, population[i].path, 1/population[i].fitness))
+            k+=1
 
 
 if __name__ == '__main__':
