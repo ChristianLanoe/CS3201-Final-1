@@ -20,6 +20,16 @@ def random_uniform(current_pop, offspring):
 
     return pop
 
+def mu_lambda(current_pop, offspring):
+
+    pop = []
+    pop += current_pop
+    pop.sort(key=lambda x: x.fitness, reverse=True)
+    pop = pop[:(len(current_pop)-len(offspring))]
+    pop += offspring
+    
+    return pop
+
 
 # Each individual k from the total pop is paired against q others in a tournament
 # k is awarded a win if its fitness if over the competitors
