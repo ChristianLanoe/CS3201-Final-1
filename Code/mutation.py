@@ -1,8 +1,8 @@
 import random
+from individual import Individual
 # mutate a permutation
 
 def swap (individual):
-    
     mutant = individual.path.copy()
 
     pointOne = random.randint(0,len(mutant)-1)
@@ -14,6 +14,8 @@ def swap (individual):
     mutant[pointOne] = mutant[pointTwo]
     mutant[pointTwo] = temp
     
+    mutant = Individual(mutant,0)
+
     return mutant
 
 def insert (individual):
@@ -24,21 +26,24 @@ def insert (individual):
     
     while(pointOne == pointTwo or pointOne-pointTwo==-1):
         pointTwo = random.randint(0, len(mutant)-1)
-    print("Point 1:",pointOne)
-    print("Point 2:",pointTwo)
     temp = mutant[pointTwo]
     del mutant[pointTwo]
     mutant.insert(pointOne+1,temp)
     
+    mutant = Individual(mutant,0)
+
     return mutant
 
 def inversion (individual):
-    mutant = individual.copy()
+    mutant = individual.path.copy()
 
     pointOne = random.randint(0,len(mutant)-2)
     pointTwo = random.randint(pointOne+1,len(mutant)-1)
 
     mutant[pointOne:pointTwo+1]=mutant[pointOne:pointTwo+1][::-1]
+
+    mutant = Individual(mutant,0)
+
     return mutant
 
 def scramble (individual):
@@ -51,4 +56,7 @@ def scramble (individual):
     copy = mutant[pointOne:pointTwo+1]
     random.shuffle(copy)
     mutant[pointOne:pointTwo+1] = copy
+
+    mutant = Individual(mutant,0)
+
     return mutant
