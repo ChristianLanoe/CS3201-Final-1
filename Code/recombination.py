@@ -45,12 +45,6 @@ def OrderCrossover(parent1, parent2):
     offspring1 = Individual(path1, 0)
     offspring2 = Individual(path2, 0)
 
-    print(seg_start, seg_end)
-    printPath(parent1.path, "parent1:")
-    printPath(parent2.path, "parent2:")
-    printPath(path1, "path1:")
-    printPath(path2, "path2:")
-
     return offspring1, offspring2
 
 
