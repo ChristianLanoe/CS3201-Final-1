@@ -27,6 +27,60 @@ def cut_and_crossfill(parent1, parent2):
     return offspring1, offspring2
 
 
+def OrderCrossover(parent1, parent2):
+    path_length = len(parent1.path)
+    path1 = [-1 for x in range(path_length)]
+    path2 = [-1 for x in range(path_length)]
+
+    seg_start = np.random.randint(0,path_length-1)
+    seg_end = np.random.randint(seg_start,path_length-1)
+
+    for i in range(seg_start, seg_end+1):
+        path1[i] = parent1.path[i]
+        path2[i] = parent2.path[i]
+
+    path1 = OrderCrossover_fill(path1, parent2.path, seg_end)
+    path2 = OrderCrossover_fill(path2, parent1.path, seg_end)
+
+    offspring1 = Individual(path1, 0)
+    offspring2 = Individual(path2, 0)
+
+    print(seg_start, seg_end)
+    printPath(parent1.path, "parent1:")
+    printPath(parent2.path, "parent2:")
+    printPath(path1, "path1:")
+    printPath(path2, "path2:")
+
+    return offspring1, offspring2
+
+
+"""
+Helper function to fill the children from Order Crossover
+
+Args:
+    offspringPath - the path with the segment from its parent
+    parentPath - the parent that didn't contribute its segment to offspring path
+    seg_end - the index of the last crossover point
+
+Returns:
+    offspringPath - the completed path
+"""
+def OrderCrossover_fill(offspringPath,parentPath,seg_end):
+    p = seg_end + 1
+    c = seg_end + 1
+    while(-1 in offspringPath):
+        if(parentPath[p] not in offspringPath):
+            offspringPath[c] = parentPath[p]
+            c += 1
+            if(c == len(offspringPath)):
+                c = 0
+        else:
+            p += 1
+            if(p == len(parentPath)):
+                p = 0
+    return offspringPath
+
+
 def PMX(parent1, parent2):
     offspring1 = Individual([-1 for x in range(len(parent1.path))], 0)
     offspring2 = Individual([-1 for x in range(len(parent1.path))], 0)
