@@ -4,12 +4,11 @@ def mu_plus_lambda(current_pop, offspring):
 
     population = []
     pop = []
+    fitness = []
     #add current population and offsprings into a list
-    for i in range(0, len(current_pop)):
-        pop.append(current_pop[i])
-    for k in range(0, len(offspring)):
-        pop.append(offspring[k])
-    #sort said list by fitness value
+    pop + current_pop
+    pop + offspring
+    
     pop.sort(key=lambda x: x.fitness, reverse=False)
     #add first len(nextPopulation) indexes to population
     for j in range(0, len(current_pop)):
@@ -22,10 +21,8 @@ def random_uniform(current_pop, offspring):
     population = []
     pop = []
     #add current population and offsprings into a list
-    for i in range(0, len(current_pop)):
-        pop.append(current_pop[i])
-    for k in range(0, len(offspring)):
-        pop.append(offspring[k])
+    pop + current_pop
+    pop + offspring
     #shuffle said list
     random.shuffle(pop)
     #add first len(nextPopulation) indexes to population
@@ -46,10 +43,8 @@ def round_robin_tournament(current_pop, offspring):
     
     fitness = []
     #add current population and offsprings into a list
-    for i in range(0, len(current_pop)):
-        pop.append(current_pop[i])
-    for k in range(0, len(offspring)):
-        pop.append(offspring[k])
+    pop + current_pop
+    pop + offspring
 
     i = 0
     while i < q:
