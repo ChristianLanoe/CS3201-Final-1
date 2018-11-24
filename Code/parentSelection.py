@@ -8,14 +8,9 @@ def tournament_sel(population, mating_pool_size, tournament_size):
     selected = []
 
     while len(selected) < mating_pool_size:
-        tour_index = random.sample(range(0,len(population)), tournament_size)
-        best_fit = -1000
-        best_index = -1
-        for i in range (0, tournament_size):
-            if population[tour_index[i]].fitness > best_fit:
-                best_fit = population[tour_index[i]].fitness
-                best_index = tour_index[i]
-        selected.append(best_index)
+        competitors = random.sample(population, tournament_size)
+        competitors.sort(key=lambda x: x.fitness, reverse=True)
+        selected.append(competitors[0])
     return selected
 
 
@@ -40,4 +35,3 @@ def MPS(population, mating_pool_size):
         i += 1
 
     return selected
-    
