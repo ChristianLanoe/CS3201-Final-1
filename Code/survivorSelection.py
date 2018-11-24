@@ -44,9 +44,11 @@ def round_robin_tournament(current_pop, offspring):
     #add current population and offsprings into a list
     pop += current_pop
     pop += offspring
+    random.shuffle(pop)
 
     i = 0
-    while i < q:
+    # calculate q tournaments for all individuals in the total population
+    while i < len(current_pop):
         wins = 0
         individual = pop[i]
         testPop = pop.copy()
@@ -55,11 +57,10 @@ def round_robin_tournament(current_pop, offspring):
         for k in range(0, q):
             if (individual.fitness > competitors[k].fitness):
                 wins += 1
-        tuple = list(zip(pop, fitness))
         fitness.append(wins)
         i += 1
-        # index in fitness corresponds to index in pop
-    tuple = list(zip(pop, fitness))
+    # index in fitness corresponds to index in pop
+    tuple = list(zip(pop, fitness)) 
     from operator import itemgetter
     tuple = sorted(tuple, key=itemgetter(1), reverse=True)
     # only take mu indivuduals with top wins
