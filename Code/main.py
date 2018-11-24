@@ -83,8 +83,8 @@ def main():
 
     maxFitness = 0
     while gen < gen_limit:
-        # parents = parentSelection.tournament_sel(population, mating_pool_size, tournament_size)
-        parents = parentSelection.MPS(population, mating_pool_size)
+        parents = parentSelection.tournament_sel(population, mating_pool_size, tournament_size)
+        # parents = parentSelection.MPS(population, mating_pool_size)
 
         random.shuffle(parents)
 
@@ -97,10 +97,10 @@ def main():
             if random.random() < xover_rate:
                 # off1, off2 = recombination.Alternating_Edges(parents[i], parents[i+1])
                 # off1, off2 = recombination.cut_and_crossfill(parents[i], parents[i + 1])
-                # off1, off2 = recombination.OrderCrossover(parents[i], parents[i + 1])
+                off1, off2 = recombination.OrderCrossover(parents[i], parents[i + 1])
                 # off1, off2 = recombination.PMX(parents[i], parents[i + 1])
-                off1 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
-                off2 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
+                # off1 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
+                # off2 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
             else:
                 off1 = parents[i]
                 off2 = parents[i + 1]
@@ -144,8 +144,7 @@ def main():
             plot_population.append(population[i].path)
             print("best solution {} {} {}".format(k, population[i].path, 1/population[i].fitness))
             k+=1
-    #print(serializer.readFile("../TSP_WesternSahara_29.txt"))
-    plot.plotTSP(plot_population, serializer.readFile("../TSP_WesternSahara_29.txt"), num_iters=popsize)
+    plot.plotTSP(plot_population[0], serializer.readFile("../TSP_WesternSahara_29.txt"))
 
 
 if __name__ == '__main__':
