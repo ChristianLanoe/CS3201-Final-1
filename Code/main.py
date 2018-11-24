@@ -57,17 +57,16 @@ def main():
     checkSysArgs()
     distances = load_file(sys.argv[1])
     string_length = len(distances)
-    popsize = 100
+    popsize = 200
     mating_pool_size = int(popsize * 0.5)  # has to be even
     tournament_size = 3
-    mut_rate = 0.7
+    mut_rate = 0.3
     xover_rate = 0.9
     gen_limit = 2000
     fitnessThreshold = 20
 
-    
     gen = 0
-    population  = initialization.permutation(popsize, string_length)
+    population = initialization.permutation(popsize, string_length)
     # print("Initial Population \n ======================")
     # for i in range(len(population)):
     #     print(population[i])
@@ -81,10 +80,10 @@ def main():
 
     maxFitness = 0
     while gen < gen_limit:
-        parents = parentSelection.tournament_sel(population, mating_pool_size, tournament_size)
-        # print(parents)
-        random.shuffle(parents)
+        # parents = parentSelection.tournament_sel(population, mating_pool_size, tournament_size)
+        parents = parentSelection.MPS(population, mating_pool_size)
 
+        random.shuffle(parents)
 
         offspring = []
         i = 0
@@ -93,28 +92,28 @@ def main():
 
             # RECOMBINATION
             if random.random() < xover_rate:
-                # off1, off2 = recombination.Alternating_Edges(population[parents[i]], population[parents[i+1]])
-                # off1, off2 = recombination.cut_and_crossfill(population[parents[i]], population[parents[i+1]])
-                # off1, off2 = recombination.OrderCrossover(population[parents[i]], population[parents[i+1]])
-                off1, off2 = recombination.PMX(population[parents[i]], population[parents[i+1]])
-                # off1 = recombination.sequential_constructive_crossover(population[parents[i]], population[parents[i+1]], distances)
-                # off2 = recombination.sequential_constructive_crossover(population[parents[i]], population[parents[i+1]], distances)
+                # off1, off2 = recombination.Alternating_Edges(parents[i], parents[i+1])
+                # off1, off2 = recombination.cut_and_crossfill(parents[i], parents[i + 1])
+                # off1, off2 = recombination.OrderCrossover(parents[i], parents[i + 1])
+                # off1, off2 = recombination.PMX(parents[i], parents[i + 1])
+                off1 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
+                off2 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
             else:
-                off1 = population[parents[i]]
-                off2 = population[parents[i + 1]]
+                off1 = parents[i]
+                off2 = parents[i + 1]
 
             # MUTATION
             if random.random() < mut_rate:
                 # off1 = mutation.insert(off1)
-                # off1 = mutation.inversion(off1)
+                off1 = mutation.inversion(off1)
                 # off1 = mutation.random(off1)
-                off1 = mutation.scramble(off1)
+                # off1 = mutation.scramble(off1)
                 # off1 = mutation.swap(off1)
             if random.random() < mut_rate:
                 # off2 = mutation.insert(off2)
-                # off2 = mutation.inversion(off2)
+                off2 = mutation.inversion(off2)
                 # off2 = mutation.random(off2)
-                off2 = mutation.scramble(off2)
+                # off2 = mutation.scramble(off2)
                 # off2 = mutation.swap(off2)
 
             # FITNESS EVALUATION
@@ -126,7 +125,8 @@ def main():
 
         # SURVIVOR SELECTION
         # population = survivorSelection.mu_plus_lambda(population, offspring)
-        population = survivorSelection.random_uniform(population, offspring)
+        population = survivorSelection.mu_lambda(population, offspring)
+        # population = survivorSelection.random_uniform(population, offspring)
         # population = survivorSelection.simulated_annealing(population, offspring)
 
         gen += 1
