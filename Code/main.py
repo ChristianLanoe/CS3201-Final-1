@@ -6,6 +6,8 @@ import os
 import pprint as pp
 import math
 
+import serializer
+import plot
 import individual
 import initialization
 import evaluation
@@ -62,8 +64,9 @@ def main():
     tournament_size = 3
     mut_rate = 0.7
     xover_rate = 0.9
-    gen_limit = 2000
+    gen_limit = 1000
     fitnessThreshold = 20
+    plot_population = []
 
     
     gen = 0
@@ -138,8 +141,11 @@ def main():
     k = 0
     for i in range(0, popsize):
         if(population[i].fitness) == maxFitness:
+            plot_population.append(population[i].path)
             print("best solution {} {} {}".format(k, population[i].path, 1/population[i].fitness))
             k+=1
+    #print(serializer.readFile("../TSP_WesternSahara_29.txt"))
+    plot.plotTSP(plot_population, serializer.readFile("../TSP_WesternSahara_29.txt"), num_iters=popsize)
 
 
 if __name__ == '__main__':
