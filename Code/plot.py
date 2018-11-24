@@ -10,8 +10,8 @@ def plotTSP(path, points):
     x = []
     y = []
     for i in path:
-        x.append(points[i][0])
-        y.append(points[i][1])
+        y.append(points[i][0])
+        x.append(points[i][1])
 
     plt.plot(x, y, 'ro', markersize=4)
 
@@ -25,6 +25,6 @@ def plotTSP(path, points):
                   head_width=a_scale, color='black', length_includes_head=True)
 
     # Set axis too slightly larger than the set of x and y
-    plt.xlim(min(x) * 0.95, max(x) * 1.05)
-    plt.ylim(min(y) * 0.95, max(y) * 1.05)
+    plt.xlim(min(x) - 100, max(x) + 100)
+    plt.ylim(min(y) - 100, max(y) + 100)
     plt.show()
