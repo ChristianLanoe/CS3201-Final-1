@@ -51,10 +51,16 @@ def load_file(countryName):
 def main():
     checkSysArgs()
     distances = load_file(sys.argv[1])
+    if sys.argv[1] == "WesternSahara":
+        filename = "../TSP_WesternSahara_29.txt"
+    elif sys.argv[1] == "Uruguay":
+        filename = "../TSP_Uruguay_734.txt"
+    elif sys.arg[1] == "Canada":
+        filename = "../TSP_Canada_4663.txt"
     string_length = len(distances)
     popsize = 100
     mating_pool_size = int(popsize * 0.5)  # has to be even
-    tournament_size = 3
+    tournament_size = 6
     mut_rate = 0.3
     xover_rate = 0.9
     gen_limit = 2500
@@ -151,7 +157,7 @@ def main():
             plot_population.append(population[i].path)
             print("best solution {} {} {}".format(k, population[i].path, 1/population[i].fitness))
             k+=1
-    plot.plotTSP(plot_population[0], serializer.readFile("../TSP_WesternSahara_29.txt"))
+    plot.plotTSP(plot_population[0], serializer.readFile(filename))
 
 
 if __name__ == '__main__':
