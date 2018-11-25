@@ -3,12 +3,9 @@ import pickle
 import numpy as np
 import random
 import os
-import pprint as pp
-import math
 
 import serializer
 import plot
-import individual
 import initialization
 import evaluation
 import recombination
@@ -20,37 +17,33 @@ cities = []
 distances = []
 
 
-"""
-This function checks if the user has supplied the correct number of command
-line arguments
-
-Args:
-    None
-
-Returns:
-    None
-"""
+# This function checks if the user has supplied the correct number of command
+# line arguments
+#
+# Args:
+#     None
+#
+# Returns:
+#     None
 def checkSysArgs():
     if(len(sys.argv) != 2):
         print("usage: python {} Country_Name")
 
 
-"""
-This function loads the serialzed distance list of the specified country
-
-The only countries that are currently accepted are:
-    Canada
-    Uruguay
-    WesternSahara
-
-Args:
-    countryName - The name of the country to load
-
-Returns:
-    The unserialzed list
-"""
+# This function loads the serialzed distance list of the specified country
+#
+# The only countries that are currently accepted are:
+#     Canada
+#     Uruguay
+#     WesternSahara
+#
+# Args:
+#     countryName - The name of the country to load
+#
+# Returns:
+#     The unserialzed list
 def load_file(countryName):
-    filename = countryName+".pickle"
+    filename = countryName + ".pickle"
     with open(filename, "rb") as f:
         return pickle.load(f)
 
@@ -59,30 +52,28 @@ def main():
     checkSysArgs()
     distances = load_file(sys.argv[1])
     string_length = len(distances)
-    popsize = 200
+    popsize = 100
     mating_pool_size = int(popsize * 0.5)  # has to be even
     tournament_size = 3
     mut_rate = 0.3
     xover_rate = 0.9
-    gen_limit = 1000
+    gen_limit = 2500
     fitnessThreshold = 20
     plot_population = []
 
     gen = 0
     population = initialization.permutation(popsize, string_length)
-    # print("Initial Population \n ======================")
-    # for i in range(len(population)):
-    #     print(population[i])
 
     for i in range(popsize):
         population[i].fitness = evaluation.fitness(population[i], distances)
 
-    # print("After Fitness Evaluation \n ======================")
-    # for i in range(len(population)):
-    #     print(population[i])
-
     maxFitness = 0
-    while gen < gen_limit:
+    totalFitness = 0
+    prev_averageFitness = 10000
+    convergence_counter = 0
+    scramble = False
+    gen_points = [50,100,150]
+    while convergence_counter < 300:
         parents = parentSelection.tournament_sel(population, mating_pool_size, tournament_size)
         # parents = parentSelection.MPS(population, mating_pool_size)
 
@@ -95,12 +86,20 @@ def main():
 
             # RECOMBINATION
             if random.random() < xover_rate:
-                # off1, off2 = recombination.Alternating_Edges(parents[i], parents[i+1])
-                # off1, off2 = recombination.cut_and_crossfill(parents[i], parents[i + 1])
-                off1, off2 = recombination.OrderCrossover(parents[i], parents[i + 1])
-                # off1, off2 = recombination.PMX(parents[i], parents[i + 1])
-                # off1 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
-                # off2 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
+                if gen < gen_points[0]:
+                    # off1, off2 = recombination.Alternating_Edges(parents[i], parents[i+1])
+                    # off1, off2 = recombination.cut_and_crossfill(parents[i], parents[i + 1])
+                    # off1, off2 = recombination.OrderCrossover(parents[i], parents[i + 1])
+                    # off1, off2 = recombination.PMX(parents[i], parents[i + 1])
+                    off1 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
+                    off2 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
+                else:
+                    # off1, off2 = recombination.Alternating_Edges(parents[i], parents[i+1])
+                    # off1, off2 = recombination.cut_and_crossfill(parents[i], parents[i + 1])
+                    # off1, off2 = recombination.OrderCrossover(parents[i], parents[i + 1])
+                    off1, off2 = recombination.PMX(parents[i], parents[i + 1])
+                    # off1 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
+                    # off2 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
             else:
                 off1 = parents[i]
                 off2 = parents[i + 1]
@@ -127,20 +126,28 @@ def main():
             offspring.append(off2)
 
         # SURVIVOR SELECTION
-        # population = survivorSelection.mu_plus_lambda(population, offspring)
-        population = survivorSelection.mu_lambda(population, offspring)
+        population = survivorSelection.mu_plus_lambda(population, offspring)
+        # population = survivorSelection.mu_lambda(population, offspring)
+        # population = survivorSelection.round_robin_tournament(population, offspring)
         # population = survivorSelection.random_uniform(population, offspring)
         # population = survivorSelection.simulated_annealing(population, offspring)
 
         gen += 1
 
-        maxFitness = max(individual.fitness for individual in population)
-        totalFitness = sum(individual.fitness for individual in population)
+        minPathLength = 1 / max(individual.fitness for individual in population)
+        totalPathLengths = sum(1 / individual.fitness for individual in population)
+        averagePathLength = totalPathLengths / len(population)
 
-        print("generation {}: best fitness {} average fitness {}".format(gen, 1/maxFitness, totalFitness/len(population)))
-    k = 0
+        if (averagePathLength - minPathLength) < 100:
+            convergence_counter += 1
+        else:
+            convergence_counter = 0
+
+        print("generation {}: Min Path {}, Average Path {}, diff {}"
+              .format(gen, minPathLength, averagePathLength, averagePathLength -minPathLength))
+    k = 1
     for i in range(0, popsize):
-        if(population[i].fitness) == maxFitness:
+        if(1/population[i].fitness) == minPathLength:
             plot_population.append(population[i].path)
             print("best solution {} {} {}".format(k, population[i].path, 1/population[i].fitness))
             k+=1
