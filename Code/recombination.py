@@ -203,38 +203,21 @@ def sequential_constructive_crossover(parent1, parent2, distances):
 
     currentCity = initial[0]
     while(len(offspring) < path_length):
-        next1_oob = False
-        next1_inOffspring = False
-
         # The next city in the cycle is determined by the city after the current
         # city in each parent
         # next1 - the city after the current city in parent1
         # next2 - the city after the current city in parent2
         next1_idx = parent1.path.index(currentCity) + 1
         next2_idx = parent2.path.index(currentCity) + 1
-        if(next1_idx < path_length):
-            if(parent1.path[next1_idx] not in offspring):
-                next1 = parent1.path[next1_idx]
-            else:
-                next1 = unvisited_cities[0]
-                next1_inOffspring = True
+        if (next1_idx < path_length) and (parent1.path[next1_idx] not in offspring):
+            next1 = parent1.path[next1_idx]
         else:
-            next1_oob = True
             next1 = unvisited_cities[0]
 
-        if(next2_idx < path_length):
-            if(parent2.path[next2_idx] not in offspring):
-                next2 = parent2.path[next2_idx]
-            else:
-                if((next1_inOffspring or next1_oob) and len(unvisited_cities) > 1):
-                    next2 = unvisited_cities[1]
-                else:
-                    next2 = unvisited_cities[0]
+        if(next2_idx < path_length) and (parent2.path[next2_idx] not in offspring):
+            next2 = parent2.path[next2_idx]
         else:
-            if((next1_inOffspring or next1_oob) and len(unvisited_cities) > 1):
-                next2 = unvisited_cities[1]
-            else:
-                next2 = unvisited_cities[0]
+            next2 = unvisited_cities[0]
 
         # If the next city is the same in both parents add it to the offspring
         # and continue
