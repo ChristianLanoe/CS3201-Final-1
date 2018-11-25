@@ -23,20 +23,18 @@ def swap(individual):
 
 
 def insert (individual):
-    mutant = individual.path.copy()
+    path = individual.path.copy()
 
-    pointOne = random.randint(0,len(mutant)-1)
-    pointTwo = random.randint(0,len(mutant)-1)
-    
+    pointOne = random.randint(0,len(path)-1)
+    pointTwo = random.randint(0,len(path)-1)
+
     while(pointOne == pointTwo or pointOne-pointTwo==-1):
-        pointTwo = random.randint(0, len(mutant)-1)
-    temp = mutant[pointTwo]
-    del mutant[pointTwo]
-    mutant.insert(pointOne+1,temp)
-    
-    mutant = Individual(mutant,0)
-
-    return mutant
+        pointTwo = random.randint(0, len(path)-1)
+    temp = path[pointTwo]
+    del path[pointTwo]
+    path.insert(pointOne+1,temp)
+    loc = generate_locations(path)
+    return Individual(path, loc, 0)
 
 def inversion (individual):
     mutant = individual.path.copy()
@@ -45,6 +43,7 @@ def inversion (individual):
     pointTwo = random.randint(pointOne+1,len(mutant)-1)
 
     mutant[pointOne:pointTwo+1]=mutant[pointOne:pointTwo+1][::-1]
+
 
     mutant = Individual(mutant,0)
 
@@ -64,3 +63,10 @@ def scramble (individual):
     mutant = Individual(mutant,0)
 
     return mutant
+
+
+def generate_locations(path):
+    locations = [-1 for x in range(len(path))]
+    for i in range(len(path)):
+        locations[path[i]] = i
+    return locations
