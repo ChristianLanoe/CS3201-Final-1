@@ -8,10 +8,10 @@ def cut_and_crossfill(parent1, parent2):
     offspring1 = Individual([], 0)
     offspring2 = Individual([], 0)
 
-    crossover_point = random.randint(0, len(parent1.path)-3)
+    crossover_point = random.randint(0, len(parent1.path) - 3)
 
-    offspring1.path = parent1.path[:crossover_point+1]
-    offspring2.path = parent2.path[:crossover_point+1]
+    offspring1.path = parent1.path[:crossover_point + 1]
+    offspring2.path = parent2.path[:crossover_point + 1]
 
     i = crossover_point + 1
     for x in range(len(parent1.path)):
@@ -19,7 +19,7 @@ def cut_and_crossfill(parent1, parent2):
             offspring1.path.append(parent2.path[i])
         if(parent1.path[i] not in offspring2.path):
             offspring2.path.append(parent1.path[i])
-        if(i !=  len(parent1.path) - 1):
+        if(i != len(parent1.path) - 1):
             i += 1
         else:
             i = 0
@@ -32,10 +32,10 @@ def OrderCrossover(parent1, parent2):
     path1 = [-1 for x in range(path_length)]
     path2 = [-1 for x in range(path_length)]
 
-    seg_start = np.random.randint(0,path_length-1)
-    seg_end = np.random.randint(seg_start,path_length-1)
+    seg_start = np.random.randint(0, path_length - 1)
+    seg_end = np.random.randint(seg_start, path_length - 1)
 
-    for i in range(seg_start, seg_end+1):
+    for i in range(seg_start, seg_end + 1):
         path1[i] = parent1.path[i]
         path2[i] = parent2.path[i]
 
@@ -48,18 +48,16 @@ def OrderCrossover(parent1, parent2):
     return offspring1, offspring2
 
 
-"""
-Helper function to fill the children from Order Crossover
-
-Args:
-    offspringPath - the path with the segment from its parent
-    parentPath - the parent that didn't contribute its segment to offspring path
-    seg_end - the index of the last crossover point
-
-Returns:
-    offspringPath - the completed path
-"""
-def OrderCrossover_fill(offspringPath,parentPath,seg_end):
+# Helper function to fill the children from Order Crossover
+#
+# Args:
+#     offspringPath - the path with the segment from its parent
+#     parentPath - the parent that didn't contribute its segment to offspring path
+#     seg_end - the index of the last crossover point
+#
+# Returns:
+#     offspringPath - the completed path
+def OrderCrossover_fill(offspringPath, parentPath, seg_end):
     p = seg_end + 1
     c = seg_end + 1
     while(-1 in offspringPath):
@@ -80,9 +78,9 @@ def PMX(parent1, parent2):
     offspring2 = Individual([-1 for x in range(len(parent1.path))], 0)
 
     path_length = len(parent1.path)
-    seg_start = random.randint(0, path_length-1)
-    seg_end = random.randint(seg_start, path_length-1)
-    for i in range(seg_start, seg_end+1):
+    seg_start = random.randint(0, path_length - 1)
+    seg_end = random.randint(seg_start, path_length - 1)
+    for i in range(seg_start, seg_end + 1):
         offspring1.path[i] = parent1.path[i]
         offspring2.path[i] = parent2.path[i]
 
@@ -94,7 +92,7 @@ def PMX(parent1, parent2):
 
 def PMX_fill_offspring(offspring, parent, seg_start, seg_end):
     path_length = len(parent.path)
-    for i in range(seg_start, seg_end+1):
+    for i in range(seg_start, seg_end + 1):
         if(parent.path[i] == offspring.path[i]):
             continue
         if(parent.path[i] in offspring.path):
@@ -112,20 +110,18 @@ def PMX_fill_offspring(offspring, parent, seg_start, seg_end):
     return offspring
 
 
-"""
-Alternating Edges Crossover start by adding the first 2 cities of a parent to the 
-offspring. It then adds the city that proceeds from the second parent then the 
-city that proceeds from the first parent and so on.
-
-If the next city is already in the offspring we add the first city in a
-randomized list of unvisited cities
-"""
+# Alternating Edges Crossover start by adding the first 2 cities of a parent to the
+# offspring. It then adds the city that proceeds from the second parent then the
+# city that proceeds from the first parent and so on.
+#
+# If the next city is already in the offspring we add the first city in a
+# randomized list of unvisited cities
 def Alternating_Edges(parent1, parent2):
     offspringPath1 = []
     offspringPath2 = []
     path_length = len(parent1.path)
     parents = [parent1.path, parent2.path]
-    
+
     offspringPath1.append(parent1.path[0])
     offspringPath1.append(parent1.path[1])
 
@@ -141,27 +137,26 @@ def Alternating_Edges(parent1, parent2):
     return offspring1, offspring2
 
 
-"""
-Helper Function to fill offspring from Alternating Edges Crossover
-
-Args:
-    path - the path of the offspring. Already contains the first 2 cities from 
-           one of the parents
-    parents - the array of parent paths
-    curParent - the index of the current currentParent
-    path_length
-
-Returns:
-    offspringPath - the path of the offspring
-"""
+# Helper Function to fill offspring from Alternating Edges Crossover
+#
+# Args:
+#     path - the path of the offspring. Already contains the first 2 cities from
+#            one of the parents
+#     parents - the array of parent paths
+#     curParent - the index of the current currentParent
+#     path_length
+#
+# Returns:
+#     offspringPath - the path of the offspring
 def Alternating_Edges_fill_offspring(path, parents, curParent, path_length):
-    unvisited_cities = np.random.permutation(path_length).tolist()
+    # unvisited_cities = np.random.permutation(path_length).tolist()
+    unvisited_cities = np.arange(path_length).tolist()
     for city in path:
         unvisited_cities.remove(city)
 
     while(len(path) < path_length):
-        city_idx = parents[curParent].index(path[len(path)-1])
-        if(city_idx == path_length-1):
+        city_idx = parents[curParent].index(path[len(path) - 1])
+        if(city_idx == path_length - 1):
             city_idx = -1
         next_idx = city_idx + 1
 
@@ -169,28 +164,27 @@ def Alternating_Edges_fill_offspring(path, parents, curParent, path_length):
             path.append(parents[curParent][next_idx])
         else:
             path.append(unvisited_cities[0])
-        unvisited_cities.remove(path[len(path)-1])
+        unvisited_cities.remove(path[len(path) - 1])
         curParent = (curParent + 1) % len(parents)
 
     return path
-    
 
-"""
-This recombination operator randomly picks which parent to use as a starting point
-From there it picks the edge from the parents that has the shortest distance
 
-If the destination city of the edge is already in the offspring, we pick the
-first element in a list of unvisited cities and use that for comparison
-
-Args:
-    parent1 & parent2
-    distances - the distance matrix 
-Returns:
-    The offspring of parent1 and parent2
-"""
+# This recombination operator randomly picks which parent to use as a starting point
+# From there it picks the edge from the parents that has the shortest distance
+#
+# If the destination city of the edge is already in the offspring, we pick the
+# first element in a list of unvisited cities and use that for comparison
+#
+# Args:
+#     parent1 & parent2
+#     distances - the distance matrix
+# Returns:
+#     The offspring of parent1 and parent2
 def sequential_constructive_crossover(parent1, parent2, distances):
     path_length = len(parent1.path)
     unvisited_cities = list(range(path_length))
+    np.random.shuffle(unvisited_cities)
 
     # We don't need to initialize an Individual just yet
     # All we need right now is the path of the inidividual
@@ -216,9 +210,9 @@ def sequential_constructive_crossover(parent1, parent2, distances):
         # city in each parent
         # next1 - the city after the current city in parent1
         # next2 - the city after the current city in parent2
-        next1_idx = parent1.path.index(currentCity)+1
-        next2_idx = parent2.path.index(currentCity)+1
-        if(next1_idx<path_length):
+        next1_idx = parent1.path.index(currentCity) + 1
+        next2_idx = parent2.path.index(currentCity) + 1
+        if(next1_idx < path_length):
             if(parent1.path[next1_idx] not in offspring):
                 next1 = parent1.path[next1_idx]
             else:
@@ -241,7 +235,7 @@ def sequential_constructive_crossover(parent1, parent2, distances):
                 next2 = unvisited_cities[1]
             else:
                 next2 = unvisited_cities[0]
-                
+
         # If the next city is the same in both parents add it to the offspring
         # and continue
         if(next1 == next2):
@@ -253,7 +247,7 @@ def sequential_constructive_crossover(parent1, parent2, distances):
         d1 = distances[currentCity][next1]
         d2 = distances[currentCity][next2]
 
-        if(d1<d2):
+        if(d1 < d2):
             offspring.append(next1)
             currentCity = next1
         else:
@@ -262,24 +256,21 @@ def sequential_constructive_crossover(parent1, parent2, distances):
 
         unvisited_cities.remove(currentCity)
 
-    
     return Individual(offspring, 0)
 
 
-"""
-Debugging method for formatted printing of individual paths or plain lists
+# Debugging method for formatted printing of individual paths or plain lists
 
-title is printed and padded to contain at least 13 characters
-Each element in path is padded to contain at least 2 digits
+# title is printed and padded to contain at least 13 characters
+# Each element in path is padded to contain at least 2 digits
 
-Feel free to change these values to suit your needs
+# Feel free to change these values to suit your needs
 
-Args:
-    path - the path of interest
-    title - the label appended before the path is printed
-Returns:
-    None
-"""
+# Args:
+#     path - the path of interest
+#     title - the label appended before the path is printed
+# Returns:
+#     None
 def printPath(path, title):
     print("{:13s}".format(title), end=" ")
     for i in range(len(path)):
