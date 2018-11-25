@@ -34,15 +34,24 @@ def OrderCrossover(parent1, parent2):
     seg_start = np.random.randint(0, path_length - 1)
     seg_end = np.random.randint(seg_start, path_length - 1)
 
-    for i in range(seg_start, seg_end + 1):
-        path1[i] = parent1.path[i]
-        path2[i] = parent2.path[i]
+    path1[seg_start:seg_end + 1] = parent1.path[seg_start:seg_end + 1]
+    path2[seg_start:seg_end + 1] = parent2.path[seg_start:seg_end + 1]
+    # for i in range(seg_start, seg_end + 1):
+    #     path1[i] = parent1.path[i]
+    #     path2[i] = parent2.path[i]
 
     path1 = OrderCrossover_fill(path1, parent2.path, seg_end)
     path2 = OrderCrossover_fill(path2, parent1.path, seg_end)
 
     locs1 = generate_locations(path1)
     locs2 = generate_locations(path2)
+    # print(seg_start, seg_end)
+    # printPath(parent1.path, "parent1")
+    # printPath(parent1.locations, "parent1L")
+    # printPath(path1, "off1")
+    # printPath(locs1, "off1L")
+    # printPath(parent2.path, "parent2")
+    # printPath(parent2.locations, "parent2L")
 
     return Individual(path1, locs1, 0), Individual(path2, locs2, 0)
 
