@@ -53,19 +53,21 @@ def inversion (individual):
 
 
 def scramble (individual):
-    mutant = individual.path.copy()
+    path = individual.path.copy()
+    loc = individual.locations.copy()
     copy = []
 
-    pointOne = random.randint(0,len(mutant)-2)
-    pointTwo = random.randint(pointOne+1,len(mutant)-1)
-    
-    copy = mutant[pointOne:pointTwo+1]
+    pointOne = random.randint(0,len(path)-2)
+    pointTwo = random.randint(pointOne+1,len(path)-1)
+
+    copy = path[pointOne:pointTwo+1]
     random.shuffle(copy)
-    mutant[pointOne:pointTwo+1] = copy
+    path[pointOne:pointTwo+1] = copy
 
-    mutant = Individual(mutant,0)
+    for i in range(pointOne, pointTwo+1):
+        loc[path[i]] = i
 
-    return mutant
+    return Individual(path, loc, 0)
 
 
 def generate_locations(path):
