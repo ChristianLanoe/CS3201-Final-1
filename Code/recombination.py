@@ -206,8 +206,8 @@ def sequential_constructive_crossover(parent1, parent2, distances):
         # city in each parent
         # next1 - the city after the current city in parent1
         # next2 - the city after the current city in parent2
-        next1_idx = parent1.path.index(currentCity) + 1
-        next2_idx = parent2.path.index(currentCity) + 1
+        next1_idx = parent1.locations[currentCity] + 1
+        next2_idx = parent2.locations[currentCity] + 1
         if (next1_idx < path_length) and (parent1.path[next1_idx] not in offspring):
             next1 = parent1.path[next1_idx]
         else:
@@ -217,6 +217,14 @@ def sequential_constructive_crossover(parent1, parent2, distances):
             next2 = parent2.path[next2_idx]
         else:
             next2 = unvisited_cities[0]
+
+        # printPath(unvisited_cities, "cities")
+        # print("currentCity", currentCity)
+        # print("next1", next1)
+        # print("next2", next2)
+        # printPath(parent1.path, "parent1:")
+        # printPath(parent2.path, "parent2:")
+        # printPath(offspring, "offspring:")
 
         # If the next city is the same in both parents add it to the offspring
         # and continue
@@ -228,6 +236,8 @@ def sequential_constructive_crossover(parent1, parent2, distances):
 
         d1 = distances[currentCity][next1]
         d2 = distances[currentCity][next2]
+        # print("d1: {}".format(d1))
+        # print("d2: {}".format(d2))
 
         if(d1 < d2):
             offspring.append(next1)
@@ -237,8 +247,8 @@ def sequential_constructive_crossover(parent1, parent2, distances):
             currentCity = next2
 
         unvisited_cities.remove(currentCity)
-
-    return Individual(offspring, 0)
+    loc = generate_locations(offspring)
+    return Individual(offspring, loc, 0)
 
 
 # Debugging method for formatted printing of individual paths or plain lists
