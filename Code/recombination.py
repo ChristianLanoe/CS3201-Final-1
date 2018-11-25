@@ -4,27 +4,26 @@ import numpy as np
 
 
 def cut_and_crossfill(parent1, parent2):
-
-    offspring1 = Individual([], 0)
-    offspring2 = Individual([], 0)
-
     crossover_point = random.randint(0, len(parent1.path) - 3)
 
-    offspring1.path = parent1.path[:crossover_point + 1]
-    offspring2.path = parent2.path[:crossover_point + 1]
+    path1 = parent1.path[:crossover_point + 1]
+    path2 = parent2.path[:crossover_point + 1]
 
     i = crossover_point + 1
     for x in range(len(parent1.path)):
-        if(parent2.path[i] not in offspring1.path):
-            offspring1.path.append(parent2.path[i])
-        if(parent1.path[i] not in offspring2.path):
-            offspring2.path.append(parent1.path[i])
+        if(parent2.path[i] not in path1):
+            path1.append(parent2.path[i])
+        if(parent1.path[i] not in path2):
+            path2.append(parent1.path[i])
         if(i != len(parent1.path) - 1):
             i += 1
         else:
             i = 0
 
-    return offspring1, offspring2
+    locs1 = generate_locations(path1)
+    locs2 = generate_locations(path2)
+
+    return Individual(path1, locs1, 0), Individual(path2, locs2, 0)
 
 
 def OrderCrossover(parent1, parent2):
@@ -42,10 +41,10 @@ def OrderCrossover(parent1, parent2):
     path1 = OrderCrossover_fill(path1, parent2.path, seg_end)
     path2 = OrderCrossover_fill(path2, parent1.path, seg_end)
 
-    offspring1 = Individual(path1, 0)
-    offspring2 = Individual(path2, 0)
+    locs1 = generate_locations(path1)
+    locs2 = generate_locations(path2)
 
-    return offspring1, offspring2
+    return Individual(path1, locs1, 0), Individual(path2, locs2, 0)
 
 
 # Helper function to fill the children from Order Crossover
@@ -259,3 +258,11 @@ def printPath(path, title):
     for i in range(len(path)):
         print("{:2d}".format(path[i]), end=" ")
     print()
+
+
+def generate_locations(path):
+    locations = [0 for x in range(len(path))]
+    for i in range(len(path)):
+        locations[path[i]] = i
+
+    return locations

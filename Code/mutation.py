@@ -2,21 +2,25 @@ import random
 from individual import Individual
 # mutate a permutation
 
-def swap (individual):
-    mutant = individual.path.copy()
 
-    pointOne = random.randint(0,len(mutant)-1)
-    pointTwo = random.randint(0,len(mutant)-1)
+def swap(individual):
+    path = individual.path.copy()
+    locs = individual.locations.copy()
+
+    pointOne = random.randint(0, len(path) - 1)
+    pointTwo = random.randint(0, len(path) - 1)
 
     while(pointOne == pointTwo):
-        pointTwo = random.randint(0, len(mutant)-1)
-    temp = mutant[pointOne] # hold a value while it gets replaced
-    mutant[pointOne] = mutant[pointTwo]
-    mutant[pointTwo] = temp
-    
-    mutant = Individual(mutant,0)
+        pointTwo = random.randint(0, len(path) - 1)
+    temp = path[pointOne]  # hold a value while it gets replaced
+    templ = locs[pointOne]
+    path[pointOne] = path[pointTwo]
+    locs[pointOne] = locs[pointTwo]
+    path[pointTwo] = temp
+    locs[pointTwo] = templ
 
-    return mutant
+    return Individual(path, locs, 0)
+
 
 def insert (individual):
     mutant = individual.path.copy()
