@@ -76,40 +76,48 @@ def OrderCrossover_fill(offspringPath, parentPath, locs, seg_end):
 
 
 def PMX(parent1, parent2):
-    offspring1 = Individual([-1 for x in range(len(parent1.path))], 0)
-    offspring2 = Individual([-1 for x in range(len(parent1.path))], 0)
+    # offspring1 = Individual([-1 for x in range(len(parent1.path))], 0)
+    # offspring2 = Individual([-1 for x in range(len(parent1.path))], 0)
+    path1 = [-1 for x in range(len(parent1.path))]
+    path2 = path1.copy()
+    locs1 = path1.copy()
+    locs2 = path1.copy()
 
     path_length = len(parent1.path)
     seg_start = random.randint(0, path_length - 1)
     seg_end = random.randint(seg_start, path_length - 1)
     for i in range(seg_start, seg_end + 1):
-        offspring1.path[i] = parent1.path[i]
-        offspring2.path[i] = parent2.path[i]
+        path1[i] = parent1.path[i]
+        locs1[path1[i]] = i
+        path2[i] = parent2.path[i]
+        locs2[path2[i]] = i
 
-    offspring1 = PMX_fill_offspring(offspring1, parent2, seg_start, seg_end)
-    offspring2 = PMX_fill_offspring(offspring2, parent1, seg_start, seg_end)
+    offspring1 = PMX_fill_offspring(path1, locs1, parent2, seg_start, seg_end)
+    offspring2 = PMX_fill_offspring(path2, locs2, parent1, seg_start, seg_end)
 
     return offspring1, offspring2
 
 
-def PMX_fill_offspring(offspring, parent, seg_start, seg_end):
+def PMX_fill_offspring(path, locations, parent, seg_start, seg_end):
     path_length = len(parent.path)
     for i in range(seg_start, seg_end + 1):
-        if(parent.path[i] == offspring.path[i]):
+        if(parent.path[i] == path[i]):
             continue
-        if(parent.path[i] in offspring.path):
+        if(parent.path[i] in path):
             continue
         else:
-            insertion_idx = parent.path.index(offspring.path[i])
+            insertion_idx = parent.locations[path[i]]
             while(insertion_idx >= seg_start and insertion_idx <= seg_end):
-                insertion_idx = parent.path.index(offspring.path[insertion_idx])
-            if(offspring.path[insertion_idx] == -1):
-                offspring.path[insertion_idx] = parent.path[i]
+                insertion_idx = parent.locations[path[insertion_idx]]
+            if(path[insertion_idx] == -1):
+                path[insertion_idx] = parent.path[i]
+                locations[path[insertion_idx]] = insertion_idx
 
     for i in range(path_length):
-        if(offspring.path[i] == -1):
-            offspring.path[i] = parent.path[i]
-    return offspring
+        if(path[i] == -1):
+            path[i] = parent.path[i]
+            locations[path[i]] = i
+    return Individual(path, locations, 0)
 
 
 # Alternating Edges Crossover start by adding the first 2 cities of a parent to the
