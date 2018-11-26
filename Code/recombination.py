@@ -6,8 +6,8 @@ import numpy as np
 def cut_and_crossfill(parent1, parent2):
     crossover_point = random.randint(0, len(parent1.path) - 3)
 
-    path1 = parent1.path[:crossover_point + 1]
-    path2 = parent2.path[:crossover_point + 1]
+    path1 = parent1.path[:crossover_point + 1].copy()
+    path2 = parent2.path[:crossover_point + 1].copy()
 
     i = crossover_point + 1
     for x in range(len(parent1.path)):
@@ -31,27 +31,20 @@ def OrderCrossover(parent1, parent2):
     path1 = [-1 for x in range(path_length)]
     path2 = [-1 for x in range(path_length)]
 
+    locs1 = path1.copy()
+    locs2 = path2.copy()
+
     seg_start = np.random.randint(0, path_length - 1)
     seg_end = np.random.randint(seg_start, path_length - 1)
 
-    path1[seg_start:seg_end + 1] = parent1.path[seg_start:seg_end + 1]
-    path2[seg_start:seg_end + 1] = parent2.path[seg_start:seg_end + 1]
-    # for i in range(seg_start, seg_end + 1):
-    #     path1[i] = parent1.path[i]
-    #     path2[i] = parent2.path[i]
+    path1[seg_start:seg_end + 1] = parent1.path[seg_start:seg_end + 1].copy()
+    path2[seg_start:seg_end + 1] = parent2.path[seg_start:seg_end + 1].copy()
+    for i in range(seg_start, seg_end + 1):
+        locs1[path1[i]] = i
+        locs2[path2[i]] = i
 
-    path1 = OrderCrossover_fill(path1, parent2.path, seg_end)
-    path2 = OrderCrossover_fill(path2, parent1.path, seg_end)
-
-    locs1 = generate_locations(path1)
-    locs2 = generate_locations(path2)
-    # print(seg_start, seg_end)
-    # printPath(parent1.path, "parent1")
-    # printPath(parent1.locations, "parent1L")
-    # printPath(path1, "off1")
-    # printPath(locs1, "off1L")
-    # printPath(parent2.path, "parent2")
-    # printPath(parent2.locations, "parent2L")
+    path1 = OrderCrossover_fill(path1, parent2.path, locs1, seg_end)
+    path2 = OrderCrossover_fill(path2, parent1.path, locs2, seg_end)
 
     return Individual(path1, locs1, 0), Individual(path2, locs2, 0)
 
@@ -65,12 +58,13 @@ def OrderCrossover(parent1, parent2):
 #
 # Returns:
 #     offspringPath - the completed path
-def OrderCrossover_fill(offspringPath, parentPath, seg_end):
+def OrderCrossover_fill(offspringPath, parentPath, locs, seg_end):
     p = seg_end + 1
     c = seg_end + 1
     while(-1 in offspringPath):
         if(parentPath[p] not in offspringPath):
             offspringPath[c] = parentPath[p]
+            locs[parentPath[p]] = c
             c += 1
             if(c == len(offspringPath)):
                 c = 0
