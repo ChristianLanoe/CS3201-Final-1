@@ -1,9 +1,7 @@
 import random
 
-#Parent Selection using tournament selection with replacement
 
-
-#tournament selection with replacement
+# Tournament selection with replacement
 def tournament_sel(population, mating_pool_size, tournament_size):
     selected = []
 
@@ -14,24 +12,22 @@ def tournament_sel(population, mating_pool_size, tournament_size):
     return selected
 
 
-"""
-Multi-pointer Selection
-"""
+# Multi-pointer Selection
 def MPS(population, mating_pool_size):
     selected = []
     cumulative_prob = []
 
     totalFitness = sum(i.fitness for i in population)
-    cumulative_prob.append(population[0].fitness/totalFitness)
+    cumulative_prob.append(population[0].fitness / totalFitness)
     for i in range(1, len(population)):
-        cumulative_prob.append(cumulative_prob[i-1] + (population[i].fitness/totalFitness))
+        cumulative_prob.append(cumulative_prob[i - 1] + (population[i].fitness / totalFitness))
 
     i = 0
     r = random.uniform(0, 1 / mating_pool_size)
     while len(selected) < mating_pool_size:
         while r <= cumulative_prob[i]:
             selected.append(population[i])
-            r += 1/mating_pool_size
+            r += 1 / mating_pool_size
         i += 1
 
     return selected
