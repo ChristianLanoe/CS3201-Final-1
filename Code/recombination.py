@@ -107,16 +107,17 @@ def PMX_fill_offspring(path, locations, parent, seg_start, seg_end):
             continue
         else:
             insertion_idx = parent.locations[path[i]]
-            while(insertion_idx >= seg_start and insertion_idx <= seg_end):
+            while(insertion_idx in range(seg_start, seg_end + 1)):
                 insertion_idx = parent.locations[path[insertion_idx]]
             if(path[insertion_idx] == -1):
                 path[insertion_idx] = parent.path[i]
-                locations[path[insertion_idx]] = insertion_idx
+                locations[parent.path[i]] = insertion_idx
 
     for i in range(path_length):
         if(path[i] == -1):
             path[i] = parent.path[i]
             locations[path[i]] = i
+
     return Individual(path, locations, 0)
 
 
@@ -127,22 +128,25 @@ def PMX_fill_offspring(path, locations, parent, seg_start, seg_end):
 # If the next city is already in the offspring we add the first city in a
 # randomized list of unvisited cities
 def Alternating_Edges(parent1, parent2):
-    offspringPath1 = []
-    offspringPath2 = []
+    path1 = []
+    path2 = []
     path_length = len(parent1.path)
-    parents = [parent1.path, parent2.path]
+    loc1 = [-1 for x in range(path_length)]
+    loc2 = loc1.copy()
+    parents = [parent1, parent2]
 
-    offspringPath1.append(parent1.path[0])
-    offspringPath1.append(parent1.path[1])
+    path1.append(parent1.path[0])
+    loc1[parent1.path[0]] = 0
+    path1.append(parent1.path[1])
+    loc1[parent1.path[1]] = 1
 
-    offspringPath2.append(parent2.path[0])
-    offspringPath2.append(parent2.path[1])
+    path2.append(parent2.path[0])
+    loc2[parent2.path[0]] = 0
+    path2.append(parent2.path[1])
+    loc2[parent2.path[1]] = 1
 
-    offspringPath1 = Alternating_Edges_fill_offspring(offspringPath1, parents, 1, path_length)
-    offspringPath2 = Alternating_Edges_fill_offspring(offspringPath2, parents, 0, path_length)
-
-    offspring1 = Individual(offspringPath1, 0)
-    offspring2 = Individual(offspringPath2, 0)
+    offspring1 = Alternating_Edges_fill_offspring(path1, loc1, parents, 1, path_length)
+    offspring2 = Alternating_Edges_fill_offspring(path2, loc2, parents, 0, path_length)
 
     return offspring1, offspring2
 
@@ -158,26 +162,29 @@ def Alternating_Edges(parent1, parent2):
 #
 # Returns:
 #     offspringPath - the path of the offspring
-def Alternating_Edges_fill_offspring(path, parents, curParent, path_length):
+def Alternating_Edges_fill_offspring(path, locations, parents, curParent, path_length):
     # unvisited_cities = np.random.permutation(path_length).tolist()
     unvisited_cities = np.arange(path_length).tolist()
     for city in path:
         unvisited_cities.remove(city)
 
     while(len(path) < path_length):
-        city_idx = parents[curParent].index(path[len(path) - 1])
+        city_idx = parents[curParent].locations[path[len(path) - 1]]
+        # city_idx = parents[curParent].index(path[len(path) - 1])
         if(city_idx == path_length - 1):
             city_idx = -1
         next_idx = city_idx + 1
 
-        if(parents[curParent][next_idx] not in path):
-            path.append(parents[curParent][next_idx])
+        if(parents[curParent].path[next_idx] not in path):
+            path.append(parents[curParent].path[next_idx])
+            locations[path[len(path) - 1]] = len(path) - 1
         else:
             path.append(unvisited_cities[0])
+            locations[path[len(path) - 1]] = len(path) - 1
         unvisited_cities.remove(path[len(path) - 1])
         curParent = (curParent + 1) % len(parents)
 
-    return path
+    return Individual(path, locations, 0)
 
 
 # This recombination operator randomly picks which parent to use as a starting point
@@ -209,6 +216,7 @@ def sequential_constructive_crossover(parent1, parent2, distances):
     # Adding first element of initial to offspring path and removing it from
     # the the list of unvisited cities
     offspring.append(initial[0])
+
     unvisited_cities.remove(offspring[0])
 
     currentCity = initial[0]
