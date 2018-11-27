@@ -13,12 +13,12 @@ def swap(individual):
     while(pointOne == pointTwo):
         pointTwo = random.randint(0, len(path) - 1)
     temp = path[pointOne]  # hold a value while it gets replaced
-    templ = locs[pointOne]
     path[pointOne] = path[pointTwo]
-    locs[pointOne] = locs[pointTwo]
     path[pointTwo] = temp
-    locs[pointTwo] = templ
 
+    # Update the locations of the swapped elements
+    locs[path[pointTwo]] = pointTwo
+    locs[path[pointOne]] = pointOne
     return Individual(path, locs, 0)
 
 
@@ -34,6 +34,7 @@ def insert (individual):
     del path[pointTwo]
     path.insert(pointOne+1,temp)
     loc = generate_locations(path)
+
     return Individual(path, loc, 0)
 
 
@@ -46,7 +47,7 @@ def inversion (individual):
     path[pointOne:pointTwo+1]=path[pointOne:pointTwo+1][::-1]
 
     loc = individual.locations.copy()
-    for i in range(len(path[pointOne:pointTwo + 1])):
+    for i in range(pointOne, pointTwo +1):
         loc[path[i]] = i
 
     return Individual(path, loc, 0)
