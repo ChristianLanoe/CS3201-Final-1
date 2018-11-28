@@ -1,9 +1,7 @@
 import sys
 import pickle
-import numpy as np
 import random
 import os
-
 import serializer
 import plot
 import initialization
@@ -12,22 +10,161 @@ import recombination
 import mutation
 import parentSelection
 import survivorSelection
+import csv
+from timeit import default_timer as timer
 
-cities = []
 distances = []
+summaryData = {}
+runData = {}
+evals2solution = 0
+successfulRun = False
+optimalFitness = 1 / 27603
 
 
-# This function checks if the user has supplied the correct number of command
-# line arguments
-#
-# Args:
-#     None
-#
-# Returns:
-#     None
-def checkSysArgs():
-    if(len(sys.argv) != 2):
-        print("usage: python {} Country_Name")
+def countEvals(indivFitness):
+    global optimalFitness, successfulRun, evals2solution
+    if(indivFitness < optimalFitness and not successfulRun):
+        evals2solution += 1
+    else:
+        successfulRun = True
+
+
+def main():
+    distances = load_file(sys.argv[1])
+    filename = getTSPfilename(sys.argv[1])
+
+    global summaryData, runData
+    string_length = len(distances)
+    popsize = 100
+    mating_pool_size = int(popsize * 0.5)  # has to be even
+    tournament_size = 6
+    mut_rate = 0.3
+    xover_rate = 0.9
+    gen_limit = 2500
+    fitnessThreshold = 20
+    plot_population = []
+
+    gen = 0
+
+    start = timer()
+    population = initialization.permutation(popsize, string_length)
+
+    for i in range(popsize):
+        population[i].fitness = evaluation.fitness(population[i], distances)
+        countEvals(population[i].fitness)
+
+    # maxFitness = 0
+    minPathLength = 0
+    totalFitness = 0
+    prev_averageFitness = 10000
+    convergence_counter = 0
+    scramble = False
+    while convergence_counter < 100:
+        parents = parentSelection.tournament_sel(population, mating_pool_size, tournament_size)
+        # parents = parentSelection.MPS(population, mating_pool_size)
+        random.shuffle(parents)
+
+        offspring = []
+        i = 0
+
+        while len(offspring) < mating_pool_size:
+
+            # RECOMBINATION
+            if random.random() < xover_rate:
+                if gen < 100:
+                    # off1, off2 = recombination.Alternating_Edges(parents[i], parents[i+1])
+                    # off1, off2 = recombination.cut_and_crossfill(parents[i], parents[i + 1])
+                    # off1, off2 = recombination.OrderCrossover(parents[i], parents[i + 1])
+                    # off1, off2 = recombination.PMX(parents[i], parents[i + 1])
+                    off1 = recombination.sequential_constructive_crossover(parents[i], parents[i + 1], distances)
+                    off2 = recombination.sequential_constructive_crossover(parents[i], parents[i + 1], distances)
+                else:
+                    # off1, off2 = recombination.Alternating_Edges(parents[i], parents[i+1])
+                    # off1, off2 = recombination.cut_and_crossfill(parents[i], parents[i + 1])
+                    # off1, off2 = recombination.OrderCrossover(parents[i], parents[i + 1])
+                    off1, off2 = recombination.PMX(parents[i], parents[i + 1])
+                    # off1 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
+                    # off2 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
+            else:
+                off1 = parents[i]
+                off2 = parents[i + 1]
+
+            # MUTATION
+            if random.random() < mut_rate:
+                # off1 = mutation.insert(off1)
+                off1 = mutation.inversion(off1)
+                # off1 = mutation.scramble(off1)
+                # off1 = mutation.swap(off1)
+            if random.random() < mut_rate:
+                # off2 = mutation.insert(off2)
+                off2 = mutation.inversion(off2)
+                # off2 = mutation.scramble(off2)
+                # off2 = mutation.swap(off2)
+
+            # FITNESS EVALUATION
+            off1.fitness = evaluation.fitness(off1, distances)
+            offspring.append(off1)
+            countEvals(off1.fitness)
+
+            off2.fitness = evaluation.fitness(off2, distances)
+            offspring.append(off2)
+            countEvals(off2.fitness)
+
+        # SURVIVOR SELECTION
+        population = survivorSelection.mu_plus_lambda(population, offspring)
+        # population = survivorSelection.mu_lambda(population, offspring)
+        # population = survivorSelection.round_robin_tournament(population, offspring)
+        # population = survivorSelection.random_uniform(population, offspring)
+        # population = survivorSelection.simulated_annealing(population, offspring)
+
+        gen += 1
+
+        minPathLength = 1 / max(i.fitness for i in population)
+        totalPathLengths = sum(1 / i.fitness for i in population)
+        averagePathLength = totalPathLengths / len(population)
+
+        if (averagePathLength - minPathLength) < 1:
+            convergence_counter += 1
+        else:
+            convergence_counter = 0
+
+        # print("generation {}: Min Path {}, Average Path {}, diff {}"
+        #       .format(gen, minPathLength, averagePathLength, averagePathLength - minPathLength))
+        if(len(sys.argv) >= 4):
+            runData["Best Fitness"] = minPathLength
+            runData["Average Fitness"] = averagePathLength
+            writeFile = sys.argv[3]
+            if(sys.argv[2] == "r"):
+                if(not os.path.exists(writeFile)):
+                    with open(writeFile, "w+") as f:
+                        writer = csv.DictWriter(f, fieldnames=runData.keys())
+                        writer.writeheader()
+                with open(writeFile, 'a+') as f:
+                    writer = csv.DictWriter(f, fieldnames=runData.keys())
+                    writer.writerow(runData)
+    k = 1
+    for i in range(0, popsize):
+        if(1 / population[i].fitness) == minPathLength:
+            plot_population.append(population[i].path)
+            print("best solution {} {} {}".format(k, population[i].path, 1 / population[i].fitness))
+            k += 1
+    plot.plotTSP(plot_population[0], serializer.readFile(filename))
+    end = timer() - start
+    if(len(sys.argv) >= 4):
+        summaryData["Best Fitness"] = minPathLength
+        summaryData["Evaluations to Solution"] = evals2solution
+        summaryData["Successful Run"] = successfulRun
+        summaryData["Run Time"] = end
+        writeFile = sys.argv[3]
+        if(sys.argv[2] == "s"):
+            if(not os.path.exists(writeFile)):
+                with open(writeFile, "w+") as f:
+                    writer = csv.DictWriter(f, fieldnames=summaryData.keys())
+                    writer.writeheader()
+
+            with open(writeFile, 'a+') as f:
+                writer = csv.DictWriter(f, fieldnames=summaryData.keys())
+                writer.writerow(summaryData)
 
 
 # This function loads the serialzed distance list of the specified country
@@ -48,116 +185,15 @@ def load_file(countryName):
         return pickle.load(f)
 
 
-def main():
-    checkSysArgs()
-    distances = load_file(sys.argv[1])
-    if sys.argv[1] == "WesternSahara":
+def getTSPfilename(countryName):
+    if countryName == "WesternSahara":
         filename = "../TSP_WesternSahara_29.txt"
-    elif sys.argv[1] == "Uruguay":
+    elif countryName == "Uruguay":
         filename = "../TSP_Uruguay_734.txt"
-    elif sys.arg[1] == "Canada":
+    elif countryName == "Canada":
         filename = "../TSP_Canada_4663.txt"
-    string_length = len(distances)
-    popsize = 100
-    mating_pool_size = int(popsize * 0.5)  # has to be even
-    tournament_size = 6
-    mut_rate = 0.3
-    xover_rate = 0.9
-    gen_limit = 2500
-    fitnessThreshold = 20
-    plot_population = []
 
-    gen = 0
-    population = initialization.permutation(popsize, string_length)
-
-    for i in range(popsize):
-        population[i].fitness = evaluation.fitness(population[i], distances)
-
-    maxFitness = 0
-    totalFitness = 0
-    prev_averageFitness = 10000
-    convergence_counter = 0
-    scramble = False
-    gen_points = [50,100,150]
-    while convergence_counter < 300:
-        parents = parentSelection.tournament_sel(population, mating_pool_size, tournament_size)
-        # parents = parentSelection.MPS(population, mating_pool_size)
-
-        random.shuffle(parents)
-
-        offspring = []
-        i = 0
-
-        while len(offspring) < mating_pool_size:
-
-            # RECOMBINATION
-            if random.random() < xover_rate:
-                if gen < gen_points[0]:
-                    # off1, off2 = recombination.Alternating_Edges(parents[i], parents[i+1])
-                    # off1, off2 = recombination.cut_and_crossfill(parents[i], parents[i + 1])
-                    # off1, off2 = recombination.OrderCrossover(parents[i], parents[i + 1])
-                    # off1, off2 = recombination.PMX(parents[i], parents[i + 1])
-                    off1 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
-                    off2 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
-                else:
-                    # off1, off2 = recombination.Alternating_Edges(parents[i], parents[i+1])
-                    # off1, off2 = recombination.cut_and_crossfill(parents[i], parents[i + 1])
-                    # off1, off2 = recombination.OrderCrossover(parents[i], parents[i + 1])
-                    off1, off2 = recombination.PMX(parents[i], parents[i + 1])
-                    # off1 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
-                    # off2 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
-            else:
-                off1 = parents[i]
-                off2 = parents[i + 1]
-
-            # MUTATION
-            if random.random() < mut_rate:
-                # off1 = mutation.insert(off1)
-                off1 = mutation.inversion(off1)
-                # off1 = mutation.random(off1)
-                # off1 = mutation.scramble(off1)
-                # off1 = mutation.swap(off1)
-            if random.random() < mut_rate:
-                # off2 = mutation.insert(off2)
-                off2 = mutation.inversion(off2)
-                # off2 = mutation.random(off2)
-                # off2 = mutation.scramble(off2)
-                # off2 = mutation.swap(off2)
-
-            # FITNESS EVALUATION
-            off1.fitness = evaluation.fitness(off1, distances)
-            offspring.append(off1)
-
-            off2.fitness = evaluation.fitness(off2, distances)
-            offspring.append(off2)
-
-        # SURVIVOR SELECTION
-        population = survivorSelection.mu_plus_lambda(population, offspring)
-        # population = survivorSelection.mu_lambda(population, offspring)
-        # population = survivorSelection.round_robin_tournament(population, offspring)
-        # population = survivorSelection.random_uniform(population, offspring)
-        # population = survivorSelection.simulated_annealing(population, offspring)
-
-        gen += 1
-
-        minPathLength = 1 / max(individual.fitness for individual in population)
-        totalPathLengths = sum(1 / individual.fitness for individual in population)
-        averagePathLength = totalPathLengths / len(population)
-
-        if (averagePathLength - minPathLength) < 100:
-            convergence_counter += 1
-        else:
-            convergence_counter = 0
-
-        print("generation {}: Min Path {}, Average Path {}, diff {}"
-              .format(gen, minPathLength, averagePathLength, averagePathLength -minPathLength))
-    k = 1
-    for i in range(0, popsize):
-        if(1/population[i].fitness) == minPathLength:
-            plot_population.append(population[i].path)
-            print("best solution {} {} {}".format(k, population[i].path, 1/population[i].fitness))
-            k+=1
-    plot.plotTSP(plot_population[0], serializer.readFile(filename))
+    return filename
 
 
 if __name__ == '__main__':
