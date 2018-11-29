@@ -37,11 +37,9 @@ def main():
     string_length = len(distances)
     popsize = 100
     mating_pool_size = int(popsize * 0.5)  # has to be even
-    tournament_size = 6
-    mut_rate = 0.3
+    tournament_size = 5
+    mut_rate = 0.2
     xover_rate = 0.9
-    gen_limit = 2500
-    fitnessThreshold = 20
     plot_population = []
 
     gen = 0
@@ -58,7 +56,6 @@ def main():
     totalFitness = 0
     prev_averageFitness = 10000
     convergence_counter = 0
-    scramble = False
     while convergence_counter < 100:
         parents = parentSelection.tournament_sel(population, mating_pool_size, tournament_size)
         # parents = parentSelection.MPS(population, mating_pool_size)
@@ -81,8 +78,8 @@ def main():
                 else:
                     # off1, off2 = recombination.Alternating_Edges(parents[i], parents[i+1])
                     # off1, off2 = recombination.cut_and_crossfill(parents[i], parents[i + 1])
-                    # off1, off2 = recombination.OrderCrossover(parents[i], parents[i + 1])
-                    off1, off2 = recombination.PMX(parents[i], parents[i + 1])
+                    off1, off2 = recombination.OrderCrossover(parents[i], parents[i + 1])
+                    # off1, off2 = recombination.PMX(parents[i], parents[i + 1])
                     # off1 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
                     # off2 = recombination.sequential_constructive_crossover(parents[i], parents[i+1], distances)
             else:
@@ -128,8 +125,8 @@ def main():
         else:
             convergence_counter = 0
 
-        # print("generation {}: Min Path {}, Average Path {}, diff {}"
-        #       .format(gen, minPathLength, averagePathLength, averagePathLength - minPathLength))
+        print("generation {}: Min Path {}, Average Path {}, diff {}"
+              .format(gen, minPathLength, averagePathLength, averagePathLength - minPathLength))
         if(len(sys.argv) >= 4):
             runData["Best Fitness"] = minPathLength
             runData["Average Fitness"] = averagePathLength
@@ -142,6 +139,7 @@ def main():
                 with open(writeFile, 'a+') as f:
                     writer = csv.DictWriter(f, fieldnames=runData.keys())
                     writer.writerow(runData)
+
     k = 1
     for i in range(0, popsize):
         if(1 / population[i].fitness) == minPathLength:
@@ -149,6 +147,7 @@ def main():
             print("best solution {} {} {}".format(k, population[i].path, 1 / population[i].fitness))
             k += 1
     plot.plotTSP(plot_population[0], serializer.readFile(filename))
+
     end = timer() - start
     if(len(sys.argv) >= 4):
         summaryData["Best Fitness"] = minPathLength
