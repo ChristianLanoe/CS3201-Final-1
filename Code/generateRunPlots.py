@@ -26,8 +26,7 @@ def csvToDict():
 
 def plotFitness():
     for key in data.keys():
-        print(key)
-        title = key[14:len(key) - 4]
+        title = key[10:len(key) - 4]
         y = data[key]["Best Fitness"]
         x = list(range(1, len(y) + 1))
         avg = sum(y) / len(y)
@@ -47,8 +46,8 @@ def plotFitness():
         plt.xlabel("Generation")
         plt.ylabel("Fitness")
         # plt.axis([0, 21, 26.75, 28.25])
-        plt.yticks(np.arange(min(y)-100, max(y) + 100, 2000))
-        plt.xticks(np.arange(0, max(x) + 1, 50))
+        plt.yticks(np.arange(min(y)-100, max(y) + 100, 100000))
+        plt.xticks(np.arange(0, max(x) + 1, 3000))
         plt.title(title)
         plt.show()
 
@@ -61,7 +60,7 @@ def makeTable():
     rows = []
     cell_text = []
     for key in data.keys():
-        rows.append(key[6:len(key) - 4])
+        rows.append(key[10:len(key) - 4])
 
         cell_text.append([])
         successRate = sum(data[key]["Successful Run"]) / len(data[key]["Successful Run"])
