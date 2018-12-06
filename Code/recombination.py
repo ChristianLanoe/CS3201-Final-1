@@ -6,22 +6,28 @@ import numpy as np
 def cut_and_crossfill(parent1, parent2):
     crossover_point = random.randint(0, len(parent1.path) - 3)
 
+    locs1 = [-1 for x in range(len(parent1.path))]
+    locs2 = [-1 for x in range(len(parent1.path))]
+
     path1 = parent1.path[:crossover_point + 1].copy()
     path2 = parent2.path[:crossover_point + 1].copy()
 
+    for i in range(crossover_point + 1):
+        locs1[path1[i]] = i
+        locs2[path2[i]] = i
+
     i = crossover_point + 1
     for x in range(len(parent1.path)):
-        if(parent2.path[i] not in path1):
+        if(locs1[parent2.path[i]] == -1):
             path1.append(parent2.path[i])
-        if(parent1.path[i] not in path2):
+            locs1[parent2.path[i]] = i
+        if(locs2[parent1.path[i]] == -1):
             path2.append(parent1.path[i])
+            locs2[parent1.path[i]] = i
         if(i != len(parent1.path) - 1):
             i += 1
         else:
             i = 0
-
-    locs1 = generate_locations(path1)
-    locs2 = generate_locations(path2)
 
     return Individual(path1, locs1, 0), Individual(path2, locs2, 0)
 
