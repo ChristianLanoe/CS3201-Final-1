@@ -6,8 +6,8 @@ def permutation(pop_size, chrom_length):
     population = []
 
     for i in range(pop_size):
-        path = np.random.permutation(chrom_length).tolist()
-        locations = [-1 for x in range(chrom_length)]
+        path = np.random.permutation(chrom_length)
+        locations = np.full(chrom_length, -1)
         for j in range(chrom_length):
             locations[path[j]] = j
 
