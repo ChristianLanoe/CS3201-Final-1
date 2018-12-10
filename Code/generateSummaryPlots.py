@@ -33,13 +33,9 @@ def csvToDict():
 
 def plotFitness():
     for key in data.keys():
-        title = key[13:len(key) - 4]
+        # title = key[13:len(key) - 4]
         y = data[key]["Best Fitness"]
         x = list(range(1, len(y) + 1))
-
-        # runTimes = data[key]["Run Time"]
-        # avg_runtime = sum(runTimes) / len(runTimes)
-        # avg_r = np.array([avg_runtime for i in range(len(y))])
 
         avg = sum(y) / len(y)
         standardDev = np.std(y)
@@ -47,10 +43,8 @@ def plotFitness():
         optimal = np.array([27601 for i in range(len(y))])
 
         plt.plot(x, y, "b", label="Fitness")
-        # plt.bar(x,y, label="Fitness")
         plt.plot(x, avg_a, "r", label="Mean Fitness")
         plt.plot(x, optimal, "g", label="Optimal Fitness")
-        # plt.plot(x, avg_r, "r--", label="Average Runtime")
 
         plt.axhline(y=avg - standardDev, color="g", label="1 SD", linestyle="--")
         plt.axhline(y=avg + standardDev, color="g", linestyle="--")
@@ -58,10 +52,8 @@ def plotFitness():
         plt.legend(loc="upper right")
         plt.xlabel("Run Number")
         plt.ylabel("Best Fitness")
-        # plt.axis([0, 21, 26.75, 28.25])
-        plt.yticks(np.arange(min(y) - 100, max(y) + 100, 200))
+        plt.yticks(np.arange(min(y) - 100, max(y) + 100, 1000))
         plt.xticks(np.arange(0, max(x) + 1, 10))
-        plt.title(title)
         plt.show()
 
 
@@ -76,10 +68,17 @@ def makeTable():
         rows.append(key[13:len(key) - 4])
 
         cell_text.append([])
-        successRate = sum(data[key]["Successful Run"]) / len(data[key]["Successful Run"])
+        lenData = len(data[key]["Successful Run"])
+        if(lenData == 0):
+            successRate = 0
+        else:
+            successRate = sum(data[key]["Successful Run"]) / lenData
         numer = sum(list(compress(data[key]["Evaluations to Solution"], data[key]["Successful Run"])))
         denom = len(list(compress(data[key]["Evaluations to Solution"], data[key]["Successful Run"])))
-        aes = numer / denom
+        if(denom == 0):
+            aes = -1
+        else:
+            aes = numer / denom
 
         totalRT = sum(data[key]["Run Time"])
         art = totalRT / len(data[key]["Run Time"])

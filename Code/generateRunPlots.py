@@ -1,19 +1,22 @@
+"""
+The script plots multiple runs on the same plot
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 import csv
 import os
-from itertools import compress
+import sys
 
 data = {}
 
 
 def csvToDict():
     filenames = []
-    for root, dirs, files in os.walk("1runCSV"):
+    for root, dirs, files in os.walk("RunsAverage"):
         filenames = [f for f in files if not f[0] == "."]
 
     for file in filenames:
-        file = os.path.join(os.path.join(os.curdir, "1runCSV"), file)
+        file = os.path.join(os.path.join(os.curdir, "RunsAverage"), file)
         data[file] = {}
         data[file]["Best Fitness"] = []
         data[file]["Average Fitness"] = []
@@ -24,61 +27,38 @@ def csvToDict():
                 data[file]["Average Fitness"].append(float(row["Average Fitness"]))
 
 
+# This function handles the actual plotting of the data
+# The 2nd argument in plt.xticks and the 3rd arument in plt.yticks need to be changed
+# to fit your needs
 def plotFitness():
-    for key in data.keys():
-        title = key[10:len(key) - 4]
+    min_y = sys.maxsize
+    max_y = 0
+    for i in range(len(data.keys())):
+        key = list(data.keys())[i]
         y = data[key]["Best Fitness"]
+        # z = data[key]["Average Fitness"]
         x = list(range(1, len(y) + 1))
-        avg = sum(y) / len(y)
-        standardDev = np.std(y)
-        avg_a = np.array([avg for i in range(len(y))])
         optimal = np.array([27601 for i in range(len(y))])
+        colors = ["b", "g", "r", "c", "m", "b--", "g--", "r--", "c--", "m--"]
 
-        plt.plot(x, y, "b", label="Fitness")
-        # plt.bar(x,y, label="Fitness")
-        # plt.plot(x, avg_a, "r", label="Mean Fitness")
-        # plt.plot(x, optimal, "g", label="Optimal Fitness")
-
-        # plt.axhline(y=avg - standardDev, color="g", label="1 SD", linestyle="--")
-        # plt.axhline(y=avg + standardDev, color="g", linestyle="--")
-
-        plt.legend(loc="upper right")
-        plt.xlabel("Generation")
-        plt.ylabel("Fitness")
-        # plt.axis([0, 21, 26.75, 28.25])
-        plt.yticks(np.arange(min(y)-100, max(y) + 100, 100000))
-        plt.xticks(np.arange(0, max(x) + 1, 3000))
-        plt.title(title)
-        plt.show()
-
-
-def makeTable():
-    plt.figure(figsize=(10, 5))
-    ax = plt.subplot()
-    ax.axis('off')
-    columns = ["SR", "AES"]
-    rows = []
-    cell_text = []
-    for key in data.keys():
-        rows.append(key[10:len(key) - 4])
-
-        cell_text.append([])
-        successRate = sum(data[key]["Successful Run"]) / len(data[key]["Successful Run"])
-        numer = sum(list(compress(data[key]["Evaluations to Solution"], data[key]["Successful Run"])))
-        denom = len(list(compress(data[key]["Evaluations to Solution"], data[key]["Successful Run"])))
-        aes = numer / denom
-
-        cell_text[len(cell_text) - 1].append(successRate)
-        cell_text[len(cell_text) - 1].append(aes)
-    ax.table(cellText=cell_text, rowLabels=rows, colLabels=columns,
-             colWidths=[0.5 / 2.54, 0.5 / 2.54], cellLoc="center", loc="center right")
+        if(min(y) < min_y):
+            min_y = min(y)
+        if(max(y) > max_y):
+            max_y = max(y)
+        # plt.plot(x, z, colors[i + 1], label="Average Fitness")
+        plt.plot(x, y, colors[i], label=key[14:(len(key) - 4)])
+    plt.xlabel("Generation")
+    plt.ylabel("Fitness")
+    plt.xticks(np.arange(0, max(x) + 1, 5000))
+    plt.yticks(np.arange(min_y, max_y, 10000000))
+    plt.plot(x, optimal, "k", label="Optimal Fitness")
+    plt.legend(loc="upper right")
     plt.show()
 
 
 def main():
     csvToDict()
     plotFitness()
-    # makeTable()
 
 
 if __name__ == '__main__':

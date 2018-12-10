@@ -1,8 +1,21 @@
+"""
+Recombination Module
+
+This module will contain all functions for performing recombination
+"""
 from individual import Individual
 import random
 import numpy as np
 
 
+# This function performs the cut and crossfill recombination operator
+# It follows the algorithm from the course textbook
+#
+# Args:
+#     parent1 & parent2 - Individuals from the list of individuals selected to be parents 
+#
+# Returns:
+#     Two offspring Individuals
 def cut_and_crossfill(parent1, parent2):
     crossover_point = random.randint(0, len(parent1.path) - 3)
 
@@ -32,6 +45,14 @@ def cut_and_crossfill(parent1, parent2):
     return Individual(path1, locs1, 0), Individual(path2, locs2, 0)
 
 
+# This function performs the order crossover recombination operator
+# It follows the algorithms from the course textbook
+
+# Args:
+#     parent1 & parent2  - Individuals from the list of individuals selected to be parents
+
+# Returns:
+#     Two offspring Individuals
 def OrderCrossover(parent1, parent2):
     path_length = len(parent1.path)
     path1 = [-1 for x in range(path_length)]
@@ -59,8 +80,8 @@ def OrderCrossover(parent1, parent2):
 #
 # Args:
 #     offspringPath - the path with the segment from its parent
-#     parentPath - the parent that didn't contribute its segment to offspring path
-#     seg_end - the index of the last crossover point
+#     parentPath    - the parent that didn't contribute its segment to offspring path
+#     seg_end       - the index of the last crossover point
 #
 # Returns:
 #     offspringPath - the completed path
@@ -81,6 +102,14 @@ def OrderCrossover_fill(offspringPath, parentPath, locs, seg_end):
     return offspringPath
 
 
+# This function performs the Partially Mapped Crossover recombination operator
+# It follows the algorithm coverd in the course textbook
+#
+# Args:
+#     parent1 & parent2 - Individuals from the list of individuals selected to be parents
+#
+# Returns:
+#     Two offspring Individuals
 def PMX(parent1, parent2):
     # offspring1 = Individual([-1 for x in range(len(parent1.path))], 0)
     # offspring2 = Individual([-1 for x in range(len(parent1.path))], 0)
@@ -104,6 +133,17 @@ def PMX(parent1, parent2):
     return offspring1, offspring2
 
 
+# Helper function to fill the offspring from Partially Mapped Crossover
+#
+# Args:
+#     path        - the current path of an offspring
+#     locations   - the locations list of an offspring
+#     parent      - the parent that the offspring is mapped from
+#     seg_start   - the start index of the segment copied from the other parent
+#     seg_eng     - the end index of the segment copied from the other parent
+#
+# Returns:
+#     The completed offspring
 def PMX_fill_offspring(path, locations, parent, seg_start, seg_end):
     path_length = len(parent.path)
     for i in range(seg_start, seg_end + 1):
@@ -170,7 +210,7 @@ def Alternating_Edges(parent1, parent2):
 #     offspringPath - the path of the offspring
 def Alternating_Edges_fill_offspring(path, locations, parents, curParent, path_length):
     # unvisited_cities = np.random.permutation(path_length).tolist()
-    unvisited_cities = np.arange(path_length).tolist()
+    unvisited_cities = list(range(path_length))
     for city in path:
         unvisited_cities.remove(city)
 
@@ -207,7 +247,8 @@ def Alternating_Edges_fill_offspring(path, locations, parents, curParent, path_l
 def sequential_constructive_crossover(parent1, parent2, distances):
     path_length = len(parent1.path)
     unvisited_cities = list(range(path_length))
-    np.random.shuffle(unvisited_cities)
+    # np.random.shuffle(unvisited_cities)
+    # unvisited_cities = np.random.permutation(path_length).tolist()
 
     # We don't need to initialize an Individual just yet
     # All we need right now is the path of the inidividual
@@ -243,15 +284,6 @@ def sequential_constructive_crossover(parent1, parent2, distances):
         else:
             next2 = unvisited_cities[0]
 
-        # printPath(unvisited_cities, "cities")
-        # print("currentCity", currentCity)
-        # print("next1", next1)
-        # print("next2", next2)
-        # printPath(parent1.path, "parent1:")
-        # printPath(parent2.path, "parent2:")
-        # printPath(offspring, "offspring:")
-        # printPath(locs, "locs:")
-
         # If the next city is the same in both parents add it to the offspring
         # and continue
         if(next1 == next2):
@@ -263,8 +295,6 @@ def sequential_constructive_crossover(parent1, parent2, distances):
 
         d1 = distances[currentCity][next1]
         d2 = distances[currentCity][next2]
-        # print("d1: {}".format(d1))
-        # print("d2: {}".format(d2))
 
         if(d1 < d2):
             offspring.append(next1)
@@ -276,20 +306,17 @@ def sequential_constructive_crossover(parent1, parent2, distances):
             currentCity = next2
 
         unvisited_cities.remove(currentCity)
-        # loc = generate_locations(offspring)
-    # printPath(offspring, "offspring:")
-    # printPath(locs, "locs:")
 
     return Individual(offspring, locs, 0)
 
 
 # Debugging method for formatted printing of individual paths or plain lists
-
+#
 # title is printed and padded to contain at least 13 characters
 # Each element in path is padded to contain at least 2 digits
-
+#
 # Feel free to change these values to suit your needs
-
+#
 # Args:
 #     path - the path of interest
 #     title - the label appended before the path is printed
@@ -302,6 +329,13 @@ def printPath(path, title):
     print()
 
 
+# Helper function to generate the locations list for a given path
+#
+# Args:
+#     path - a complete path
+#
+# Returns:
+#     locations - the locations list
 def generate_locations(path):
     locations = [0 for x in range(len(path))]
     for i in range(len(path)):

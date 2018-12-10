@@ -1,5 +1,15 @@
+"""
+Evaluation Module
+
+This module will contain functions for evaluating the fitness of an individual
+
+Implemented Functions:
+    fitness
+"""
+
+
 # Function to calculate the fitness of an individual
-# Fitness is the inverse of the path length
+# To make this a maximization problem, fitness is the inverse of the path length
 #
 # Args:
 #     individual
